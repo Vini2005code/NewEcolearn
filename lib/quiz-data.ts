@@ -1,6 +1,7 @@
 export interface Question {
   id: number
   question: string
+  image: string
   options: string[]
   correct: number
 }
@@ -25,6 +26,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 1,
         question: "O que significa desenvolvimento sustentável?",
+        image: "/images/quiz/desenvolvimento-sustentavel.jpg",
         options: [
           "Crescer economicamente sem se preocupar com a natureza",
           "Usar recursos naturais até acabarem",
@@ -36,6 +38,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 2,
         question: "Qual é o principal impacto do descarte incorreto de lixo?",
+        image: "/images/quiz/descarte-lixo.jpg",
         options: [
           "Apenas sujeira visual",
           "Poluição do solo, da água e do ar",
@@ -47,6 +50,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 3,
         question: "Qual destes materiais demora mais tempo para se decompor?",
+        image: "/images/quiz/plastico-decomposicao.jpg",
         options: [
           "Papel",
           "Restos de comida",
@@ -58,6 +62,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 4,
         question: "O que é efeito estufa?",
+        image: "/images/quiz/efeito-estufa.jpg",
         options: [
           "Fenômeno que resfria o planeta",
           "Processo natural que mantém a Terra aquecida",
@@ -69,6 +74,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 5,
         question: "Qual atitude ajuda a economizar água?",
+        image: "/images/quiz/economia-agua.jpg",
         options: [
           "Lavar calçada com mangueira",
           "Deixar torneira aberta ao escovar os dentes",
@@ -80,6 +86,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 6,
         question: "O desmatamento causa principalmente:",
+        image: "/images/quiz/desmatamento.jpg",
         options: [
           "Aumento da biodiversidade",
           "Melhora do clima",
@@ -91,6 +98,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 7,
         question: "O que é coleta seletiva?",
+        image: "/images/quiz/coleta-seletiva.jpg",
         options: [
           "Jogar todo lixo no mesmo lugar",
           "Separar resíduos por tipo",
@@ -102,6 +110,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 8,
         question: "Qual é uma fonte de energia renovável?",
+        image: "/images/quiz/energia-renovavel.jpg",
         options: [
           "Petróleo",
           "Carvão mineral",
@@ -113,6 +122,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 9,
         question: "O que são resíduos orgânicos?",
+        image: "/images/quiz/residuos-organicos.jpg",
         options: [
           "Plástico e vidro",
           "Papel e metal",
@@ -124,6 +134,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 10,
         question: "Qual ação individual ajuda no combate às mudanças climáticas?",
+        image: "/images/quiz/mudancas-climaticas.jpg",
         options: [
           "Usar carro para tudo",
           "Evitar reciclar",
@@ -144,6 +155,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 1,
         question: "Qual é o maior felino das Américas?",
+        image: "/images/quiz/onca-pintada.jpg",
         options: [
           "Leão",
           "Tigre",
@@ -155,6 +167,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 2,
         question: "O que significa um animal estar em extinção?",
+        image: "/images/quiz/animal-extincao.jpg",
         options: [
           "Está aumentando em número",
           "Corre risco de desaparecer completamente",
@@ -166,6 +179,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 3,
         question: "Qual destes animais é endêmico do Brasil?",
+        image: "/images/quiz/mico-leao.jpg",
         options: [
           "Elefante africano",
           "Mico-leão-dourado",
@@ -177,6 +191,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 4,
         question: "O que é biodiversidade?",
+        image: "/images/quiz/biodiversidade.jpg",
         options: [
           "Apenas plantas de uma região",
           "Variedade de vida em um ecossistema",
@@ -188,6 +203,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 5,
         question: "Qual é a principal causa da extinção de espécies?",
+        image: "/images/quiz/destruicao-habitat.jpg",
         options: [
           "Reprodução excessiva",
           "Destruição do habitat natural",
@@ -199,6 +215,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 6,
         question: "O que são animais silvestres?",
+        image: "/images/quiz/animais-silvestres.jpg",
         options: [
           "Animais domésticos",
           "Animais que vivem livremente na natureza",
@@ -210,6 +227,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 7,
         question: "Qual bioma brasileiro abriga a maior biodiversidade?",
+        image: "/images/quiz/amazonia.jpg",
         options: [
           "Caatinga",
           "Pampa",
@@ -221,6 +239,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 8,
         question: "O tráfico de animais silvestres é:",
+        image: "/images/quiz/trafico-animais.jpg",
         options: [
           "Legal e incentivado",
           "Crime ambiental grave",
@@ -232,6 +251,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 9,
         question: "Qual ave é símbolo nacional do Brasil?",
+        image: "/images/quiz/sabia-laranjeira.jpg",
         options: [
           "Águia",
           "Arara-azul",
@@ -243,6 +263,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 10,
         question: "O que são Unidades de Conservação?",
+        image: "/images/quiz/unidades-conservacao.jpg",
         options: [
           "Fazendas de criação",
           "Áreas protegidas por lei para preservação",
@@ -263,6 +284,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 1,
         question: "Qual mosquito transmite a dengue?",
+        image: "/images/quiz/aedes-aegypti.jpg",
         options: [
           "Anopheles",
           "Culex",
@@ -274,6 +296,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 2,
         question: "Qual é a principal forma de prevenção da dengue?",
+        image: "/images/quiz/agua-parada.jpg",
         options: [
           "Tomar remédios preventivos",
           "Eliminar água parada",
@@ -285,6 +308,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 3,
         question: "Em quanto tempo o ovo do Aedes aegypti pode eclodir após contato com água?",
+        image: "/images/quiz/ovo-mosquito.jpg",
         options: [
           "1 hora",
           "30 minutos a 48 horas",
@@ -296,6 +320,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 4,
         question: "Qual sintoma NÃO é comum na dengue?",
+        image: "/images/quiz/sintomas-dengue.jpg",
         options: [
           "Febre alta",
           "Dores no corpo",
@@ -307,6 +332,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 5,
         question: "Onde o mosquito da dengue costuma se reproduzir?",
+        image: "/images/quiz/criadouro-mosquito.jpg",
         options: [
           "Em rios e lagos",
           "Em água limpa e parada",
@@ -318,6 +344,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 6,
         question: "Qual objeto doméstico pode ser criadouro do mosquito?",
+        image: "/images/quiz/vaso-planta.jpg",
         options: [
           "Geladeira",
           "Prato de vaso de planta com água",
@@ -329,6 +356,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 7,
         question: "O que fazer ao suspeitar de dengue?",
+        image: "/images/quiz/medico-dengue.jpg",
         options: [
           "Tomar antibióticos",
           "Procurar atendimento médico",
@@ -340,6 +368,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 8,
         question: "Além da dengue, o Aedes aegypti também transmite:",
+        image: "/images/quiz/zika-chikungunya.jpg",
         options: [
           "Gripe e resfriado",
           "Zika e chikungunya",
@@ -351,6 +380,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 9,
         question: "Qual é o período do dia em que o Aedes aegypti mais pica?",
+        image: "/images/quiz/horario-pico.jpg",
         options: [
           "Apenas à noite",
           "Apenas de madrugada",
@@ -362,6 +392,7 @@ export const quizTopics: QuizTopic[] = [
       {
         id: 10,
         question: "A dengue hemorrágica é:",
+        image: "/images/quiz/dengue-hemorragica.jpg",
         options: [
           "Uma forma leve da doença",
           "Uma forma grave que pode ser fatal",

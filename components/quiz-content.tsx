@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { quizTopics, calculateScore, type QuizTopic } from "@/lib/quiz-data"
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Clock } from "lucide-react"
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Clock, Play } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
@@ -15,7 +15,7 @@ interface QuizContentProps {
   onBack: () => void
 }
 
-type QuizState = "intro" | "playing" | "result"
+type QuizState = "intro" | "video" | "playing" | "result"
 
 export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
   const [quizState, setQuizState] = useState<QuizState>("intro")
@@ -38,6 +38,10 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
       handleAnswer(-1)
     }
   }, [timeLeft, isTimerActive, isAnswered])
+
+  const goToVideo = () => {
+    setQuizState("video")
+  }
 
   const startQuiz = () => {
     setQuizState("playing")
@@ -77,7 +81,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
     setIsAnswered(false)
     setCorrectAnswers(0)
     setTimeLeft(30)
-    setQuizState("intro")
+    setQuizState("video")
     setIsTimerActive(false)
   }
 
@@ -141,6 +145,14 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
                 Voltar
               </Button>
               <Button
+                variant="outline"
+                className="flex-1 bg-transparent border-primary text-primary hover:bg-primary/10"
+                onClick={goToVideo}
+              >
+                <Play className="w-4 h-4 mr-2" />
+                Ver Vídeo
+              </Button>
+              <Button
                 className="flex-1 bg-primary hover:bg-primary/90"
                 onClick={startQuiz}
               >
@@ -149,6 +161,67 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
             </div>
           </CardContent>
         </Card>
+      </div>
+    )
+  }
+
+  // Video Screen
+  if (quizState === "video") {
+    return (
+      <div className="flex-1 p-8 overflow-y-auto">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <Play className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Aprenda sobre Reciclagem</h2>
+              <p className="text-muted-foreground text-sm">Assista ao vídeo antes de responder o quiz!</p>
+            </div>
+          </div>
+
+          <Card className="bg-card border-border overflow-hidden">
+            <CardContent className="p-0">
+              <div className="relative aspect-video bg-black">
+                <video
+                  controls
+                  className="w-full h-full"
+                  poster="/images/meio-ambiente.jpg"
+                >
+                  <source src="/images/video-onu.mp4" type="video/mp4" />
+                  Seu navegador não suporta vídeos.
+                </video>
+              </div>
+              <div className="p-6">
+                <h3 className="text-lg font-bold text-foreground mb-2">
+                  A Odisseia de uma Garrafa — ONU Meio Ambiente
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Acompanhe a jornada de uma garrafa plástica e entenda o impacto do plástico nos oceanos.
+                  Este vídeo educativo da ONU Brasil mostra a importância da reciclagem e do consumo consciente.
+                  Após assistir, você estará pronto para o quiz!
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              className="flex-1 bg-transparent"
+              onClick={() => setQuizState("intro")}
+            >
+              Voltar
+            </Button>
+            <Button
+              className="flex-1 bg-primary hover:bg-primary/90"
+              onClick={startQuiz}
+            >
+              Já assisti — Começar Quiz
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -238,7 +311,19 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
         </div>
 
         {/* Question Card */}
-        <Card className="bg-card border-border">
+        <Card className="bg-card border-border overflow-hidden">
+          {/* Question Image */}
+          <div className="relative w-full h-52 overflow-hidden">
+            <Image
+              key={question.image}
+              src={question.image}
+              alt={`Ilustração para: ${question.question}`}
+              fill
+              className="object-cover transition-opacity duration-500"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
+          </div>
           <CardHeader>
             <CardTitle className="text-xl leading-relaxed">
               {question.question}
