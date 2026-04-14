@@ -8,6 +8,7 @@ import { quizTopics, calculateScore, type QuizTopic } from "@/lib/quiz-data"
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Clock, Play } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { VideoPlayer } from "@/components/video-player"
 
 interface QuizContentProps {
   topicId: string
@@ -182,16 +183,11 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
 
           <Card className="bg-card border-border overflow-hidden">
             <CardContent className="p-0">
-              <div className="relative aspect-video bg-black">
-                <video
-                  controls
-                  className="w-full h-full"
-                  poster="/images/meio-ambiente.jpg"
-                >
-                  <source src="/images/video-onu.mp4" type="video/mp4" />
-                  Seu navegador não suporta vídeos.
-                </video>
-              </div>
+              <VideoPlayer
+                src="/images/video-onu.mp4"
+                poster="/images/meio-ambiente.jpg"
+                title="A Odisseia de uma Garrafa - ONU Meio Ambiente"
+              />
               <div className="p-6">
                 <h3 className="text-lg font-bold text-foreground mb-2">
                   A Odisseia de uma Garrafa — ONU Meio Ambiente
