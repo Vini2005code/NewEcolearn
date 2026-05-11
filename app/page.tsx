@@ -7,7 +7,7 @@ import { QuizContent } from "@/components/quiz-content"
 import { CoursesContent } from "@/components/courses-content"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Users, LogOut, Menu, X } from "lucide-react"
+import { Users, LogOut, Menu, X, Sun, Moon } from "lucide-react"
 
 // Mock user data for prototype
 const mockUser = {
@@ -19,16 +19,31 @@ export default function EcoLearn() {
   const [activeTab, setActiveTab] = useState("dashboard")
   const [bestScore, setBestScore] = useState(150)
   const [totalQuizzes, setTotalQuizzes] = useState(0)
+  const [completedTopics, setCompletedTopics] = useState<string[]>([])
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isDark, setIsDark] = useState(true)
 
   useEffect(() => {
     // Load saved data from localStorage
     const savedScore = localStorage.getItem("ecolearn_best_score")
     const savedQuizzes = localStorage.getItem("ecolearn_total_quizzes")
+    const savedTopics = localStorage.getItem("ecolearn_completed_topics")
+    const savedTheme = localStorage.getItem("ecolearn_theme")
     if (savedScore) setBestScore(parseFloat(savedScore))
     if (savedQuizzes) setTotalQuizzes(parseInt(savedQuizzes))
+    if (savedTopics) setCompletedTopics(JSON.parse(savedTopics))
+    const dark = savedTheme ? savedTheme === "dark" : true
+    setIsDark(dark)
+    document.documentElement.classList.toggle("dark", dark)
   }, [])
+
+  const toggleTheme = () => {
+    const next = !isDark
+    setIsDark(next)
+    document.documentElement.classList.toggle("dark", next)
+    localStorage.setItem("ecolearn_theme", next ? "dark" : "light")
+  }
 
   const handleTabChange = (tab: string) => {
     if (tab === "logout") {
@@ -39,13 +54,19 @@ export default function EcoLearn() {
     }
   }
 
-  const handleQuizComplete = (score: number) => {
+  const handleQuizComplete = (score: number, topicId: string) => {
     setTotalQuizzes(prev => {
       const newTotal = prev + 1
       localStorage.setItem("ecolearn_total_quizzes", newTotal.toString())
       return newTotal
     })
-    
+
+    setCompletedTopics(prev => {
+      const updated = prev.includes(topicId) ? prev : [...prev, topicId]
+      localStorage.setItem("ecolearn_completed_topics", JSON.stringify(updated))
+      return updated
+    })
+
     if (score > bestScore) {
       setBestScore(score)
       localStorage.setItem("ecolearn_best_score", score.toString())
@@ -55,6 +76,7 @@ export default function EcoLearn() {
   const handleLogout = () => {
     localStorage.removeItem("ecolearn_best_score")
     localStorage.removeItem("ecolearn_total_quizzes")
+    localStorage.removeItem("ecolearn_completed_topics")
     window.location.reload()
   }
 
@@ -67,6 +89,7 @@ export default function EcoLearn() {
             userEmail={mockUser.email}
             bestScore={bestScore}
             totalQuizzes={totalQuizzes}
+            completedTopics={completedTopics}
             onStartQuiz={handleTabChange}
           />
         )
@@ -76,7 +99,7 @@ export default function EcoLearn() {
         return (
           <QuizContent
             topicId={activeTab}
-            onComplete={handleQuizComplete}
+            onComplete={(score) => handleQuizComplete(score, activeTab)}
             onBack={() => setActiveTab("dashboard")}
           />
         )
@@ -107,6 +130,7 @@ export default function EcoLearn() {
             userEmail={mockUser.email}
             bestScore={bestScore}
             totalQuizzes={totalQuizzes}
+            completedTopics={completedTopics}
             onStartQuiz={handleTabChange}
           />
         )
@@ -122,9 +146,9 @@ export default function EcoLearn() {
         aria-label="Toggle menu"
       >
         {isMobileMenuOpen ? (
-          <X className="w-6 h-6 text-foreground" />
+          <X className="w-6 h-6 text-sidebar-foreground" />
         ) : (
-          <Menu className="w-6 h-6 text-foreground" />
+          <Menu className="w-6 h-6 text-sidebar-foreground" />
         )}
       </button>
 
@@ -152,6 +176,16 @@ export default function EcoLearn() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-h-screen lg:ml-0 overflow-hidden">
+        {/* Top bar with theme toggle */}
+        <div className="flex justify-end items-center px-6 pt-4 pb-2">
+          <button
+            onClick={toggleTheme}
+            aria-label="Alternar tema"
+            className="p-2 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        </div>
         {renderContent()}
       </main>
 

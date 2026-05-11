@@ -2,16 +2,15 @@
 
 import Image from "next/image"
 import { cn } from "@/lib/utils"
-import { 
-  LayoutDashboard, 
-  Leaf, 
-  PawPrint, 
-  Bug, 
-  BookOpen, 
-  Users, 
+import {
+  LayoutDashboard,
+  Leaf,
+  PawPrint,
+  Bug,
+  BookOpen,
   LogOut,
-  Trophy,
-  ChevronRight
+  Star,
+  ChevronRight,
 } from "lucide-react"
 
 interface SidebarProps {
@@ -30,12 +29,13 @@ const quizTopics = [
 
 const resources = [
   { id: "cursos", name: "Cursos", icon: BookOpen },
-  { id: "comunidade", name: "Comunidade (Em Breve)", icon: Users, disabled: true },
 ]
 
 export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore }: SidebarProps) {
   return (
-    <aside className="w-72 bg-sidebar border-r border-sidebar-border flex flex-col min-h-screen">
+    <aside className="w-72 flex flex-col min-h-screen" style={{
+      background: "linear-gradient(180deg, #0d1f0d 0%, #1a3320 50%, #162a1a 100%)"
+    }}>
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <Image
@@ -51,20 +51,28 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
       {/* User Info */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-primary font-semibold text-lg">
+          <div className="w-10 h-10 rounded-full bg-sidebar-primary/30 flex items-center justify-center">
+            <span className="text-sidebar-primary font-semibold text-lg">
               {userName.charAt(0).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm text-foreground truncate">{userName}</p>
-            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
+            <p className="font-medium text-sm text-sidebar-foreground truncate">{userName}</p>
+            <p className="text-xs text-sidebar-foreground/50 truncate">{userEmail}</p>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 text-xs">
-          <Trophy className="w-4 h-4 text-yellow-500" />
-          <span className="text-muted-foreground">Melhor Score:</span>
-          <span className="text-primary font-bold">R$ {bestScore.toFixed(2).replace(".", ",")}</span>
+        {/* Score with tooltip */}
+        <div
+          className="mt-3 flex items-center gap-2 text-xs group relative cursor-default"
+          title="Melhor pontuação de todos os quizzes"
+        >
+          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+          <span className="text-sidebar-foreground/60">Melhor Score:</span>
+          <span className="text-sidebar-primary font-bold">{bestScore} pts</span>
+          {/* Tooltip */}
+          <span className="absolute left-0 -top-8 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            Melhor pontuação de todos os quizzes
+          </span>
         </div>
       </div>
 
@@ -76,8 +84,8 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
           className={cn(
             "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
             activeTab === "dashboard"
-              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-              : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/25"
+              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           )}
         >
           <LayoutDashboard className="w-5 h-5" />
@@ -87,7 +95,7 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
 
         {/* Quiz Topics */}
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-4">
+          <p className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider mb-3 px-4">
             Desafios em Quiz
           </p>
           <div className="space-y-1">
@@ -100,8 +108,8 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
                     activeTab === topic.id
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/25"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -115,7 +123,7 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
 
         {/* Resources */}
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-4">
+          <p className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider mb-3 px-4">
             Recursos
           </p>
           <div className="space-y-1">
@@ -124,15 +132,12 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
               return (
                 <button
                   key={resource.id}
-                  onClick={() => !resource.disabled && onTabChange(resource.id)}
-                  disabled={resource.disabled}
+                  onClick={() => onTabChange(resource.id)}
                   className={cn(
                     "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
-                    resource.disabled && "opacity-50 cursor-not-allowed",
                     activeTab === resource.id
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground",
-                    resource.disabled && "hover:bg-transparent hover:text-muted-foreground"
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/25"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   )}
                 >
                   <Icon className="w-5 h-5" />
@@ -143,13 +148,19 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
             })}
           </div>
         </div>
+
+        {/* Em Breve banner (replacing Comunidade) */}
+        <div className="mx-1 rounded-lg border border-sidebar-border/40 bg-sidebar-accent/40 px-4 py-3">
+          <p className="text-xs font-semibold text-sidebar-primary uppercase tracking-wider mb-0.5">Em breve</p>
+          <p className="text-xs text-sidebar-foreground/50">Comunidade chegando em breve!</p>
+        </div>
       </nav>
 
       {/* Logout */}
       <div className="p-4 border-t border-sidebar-border">
         <button
           onClick={() => onTabChange("logout")}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-destructive hover:bg-destructive/10 transition-all duration-200"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-all duration-200"
         >
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Sair</span>
@@ -158,10 +169,10 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
 
       {/* Copyright */}
       <div className="p-4 text-center">
-        <p className="text-xs text-muted-foreground">
-          © 2025 EcoLearn. Todos os direitos reservados.
+        <p className="text-xs text-sidebar-foreground/30">
+          &copy; 2025 EcoLearn. Todos os direitos reservados.
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-sidebar-foreground/30 mt-1">
           Vinícius Rios e Rafael Saldanha
         </p>
       </div>

@@ -10,11 +10,12 @@ interface VideoPlayerProps {
   poster?: string
   title?: string
   className?: string
+  onPlay?: () => void
 }
 
 type PlayerState = "idle" | "loading" | "ready" | "error"
 
-export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, title, className, onPlay }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [playerState, setPlayerState] = useState<PlayerState>("idle")
@@ -129,6 +130,7 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
           onCanPlay={handleCanPlay}
           onWaiting={handleWaiting}
           onPlaying={handlePlaying}
+          onPlay={onPlay}
           onError={handleError}
         >
           <source src={src} type="video/mp4" />

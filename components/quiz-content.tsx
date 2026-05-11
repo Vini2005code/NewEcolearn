@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { quizTopics, calculateScore, type QuizTopic } from "@/lib/quiz-data"
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Clock } from "lucide-react"
+import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Clock, Flame, Lightbulb } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
@@ -23,12 +23,24 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [correctAnswers, setCorrectAnswers] = useState(0)
+  const [streak, setStreak] = useState(0)
+  const [showStreakMsg, setShowStreakMsg] = useState(false)
   const [timeLeft, setTimeLeft] = useState(30)
   const [isTimerActive, setIsTimerActive] = useState(false)
 
   const topic = quizTopics.find(t => t.id === topicId) as QuizTopic
   const question = topic?.questions[currentQuestion]
   const progress = ((currentQuestion + 1) / topic?.questions.length) * 100
+
+  // Timer color logic
+  const timerColor =
+    timeLeft > 15
+      ? "text-green-500 bg-green-500/20"
+      : timeLeft > 10
+      ? "text-yellow-500 bg-yellow-500/20"
+      : "text-red-500 bg-red-500/20"
+
+  const timerPulse = timeLeft <= 5 && !isAnswered
 
   useEffect(() => {
     if (isTimerActive && timeLeft > 0 && !isAnswered) {
@@ -37,6 +49,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
     } else if (timeLeft === 0 && !isAnswered) {
       handleAnswer(-1)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, isTimerActive, isAnswered])
 
   const startQuiz = () => {
@@ -47,13 +60,21 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
 
   const handleAnswer = (answerIndex: number) => {
     if (isAnswered) return
-    
+
     setSelectedAnswer(answerIndex)
     setIsAnswered(true)
     setIsTimerActive(false)
-    
+
     if (answerIndex === question.correct) {
       setCorrectAnswers(prev => prev + 1)
+      const newStreak = streak + 1
+      setStreak(newStreak)
+      if (newStreak >= 2) {
+        setShowStreakMsg(true)
+        setTimeout(() => setShowStreakMsg(false), 2000)
+      }
+    } else {
+      setStreak(0)
     }
   }
 
@@ -65,8 +86,12 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
       setTimeLeft(30)
       setIsTimerActive(true)
     } else {
-      const finalScore = calculateScore(correctAnswers, topic.questions.length)
-      onComplete(finalScore)
+      const finalScore = calculateScore(correctAnswers + (selectedAnswer === question.correct ? 0 : 0), topic.questions.length)
+      const score = calculateScore(
+        correctAnswers + (selectedAnswer === question?.correct ? 1 : 0),
+        topic.questions.length
+      )
+      onComplete(finalScore > score ? finalScore : score)
       setQuizState("result")
     }
   }
@@ -76,6 +101,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
     setSelectedAnswer(null)
     setIsAnswered(false)
     setCorrectAnswers(0)
+    setStreak(0)
     setTimeLeft(30)
     setQuizState("intro")
     setIsTimerActive(false)
@@ -121,7 +147,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
                 <p className="text-sm text-muted-foreground">Por pergunta</p>
               </div>
             </div>
-            
+
             <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
               <h3 className="font-semibold text-foreground mb-2">Regras do Quiz</h3>
               <ul className="text-sm text-muted-foreground space-y-1">
@@ -133,17 +159,10 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
             </div>
 
             <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={onBack}
-              >
+              <Button variant="outline" className="flex-1 bg-transparent" onClick={onBack}>
                 Voltar
               </Button>
-              <Button
-                className="flex-1 bg-primary hover:bg-primary/90"
-                onClick={startQuiz}
-              >
+              <Button className="flex-1 bg-primary hover:bg-primary/90" onClick={startQuiz}>
                 Começar Quiz
               </Button>
             </div>
@@ -157,7 +176,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
   if (quizState === "result") {
     const finalScore = calculateScore(correctAnswers, topic.questions.length)
     const percentage = Math.round((correctAnswers / topic.questions.length) * 100)
-    
+
     return (
       <div className="flex-1 p-8 overflow-y-auto">
         <Card className="max-w-2xl mx-auto bg-card border-border">
@@ -170,7 +189,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
           <CardContent className="space-y-6">
             <div className="text-center">
               <p className="text-5xl font-bold text-primary mb-2">
-                R$ {finalScore.toFixed(2).replace(".", ",")}
+                {finalScore} <span className="text-2xl font-medium">pts</span>
               </p>
               <p className="text-muted-foreground">Sua pontuação neste quiz</p>
             </div>
@@ -195,17 +214,10 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
             </div>
 
             <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={onBack}
-              >
+              <Button variant="outline" className="flex-1 bg-transparent" onClick={onBack}>
                 Voltar ao Dashboard
               </Button>
-              <Button
-                className="flex-1 bg-primary hover:bg-primary/90"
-                onClick={restartQuiz}
-              >
+              <Button className="flex-1 bg-primary hover:bg-primary/90" onClick={restartQuiz}>
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Tentar Novamente
               </Button>
@@ -220,18 +232,35 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
   return (
     <div className="flex-1 p-8 overflow-y-auto">
       <div className="max-w-3xl mx-auto">
+        {/* Streak toast */}
+        {showStreakMsg && (
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
+            <Flame className="w-4 h-4" />
+            <span className="font-semibold">+{streak} sequência!</span>
+          </div>
+        )}
+
         {/* Progress Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">
               Pergunta {currentQuestion + 1} de {topic.questions.length}
             </span>
-            <div className={cn(
-              "flex items-center gap-2 px-3 py-1 rounded-full",
-              timeLeft <= 10 ? "bg-red-500/20 text-red-500" : "bg-secondary text-muted-foreground"
-            )}>
-              <Clock className="w-4 h-4" />
-              <span className="font-mono font-medium">{timeLeft}s</span>
+            <div className="flex items-center gap-3">
+              {streak >= 2 && (
+                <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/20 text-orange-500 text-xs font-medium">
+                  <Flame className="w-3 h-3" />
+                  {streak}x sequência
+                </div>
+              )}
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1 rounded-full transition-colors duration-300",
+                timerColor,
+                timerPulse && "timer-pulse"
+              )}>
+                <Clock className="w-4 h-4" />
+                <span className="font-mono font-medium">{timeLeft}s</span>
+              </div>
             </div>
           </div>
           <Progress value={progress} className="h-2" />
@@ -252,16 +281,14 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
           </div>
           <CardHeader>
-            <CardTitle className="text-xl leading-relaxed">
-              {question.question}
-            </CardTitle>
+            <CardTitle className="text-xl leading-relaxed">{question.question}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {question.options.map((option, index) => {
               const isSelected = selectedAnswer === index
               const isCorrect = index === question.correct
               const showResult = isAnswered
-              
+
               return (
                 <button
                   key={index}
@@ -302,12 +329,17 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
               )
             })}
 
+            {/* Explanation */}
+            {isAnswered && question.explanation && (
+              <div className="mt-2 flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
+                <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-muted-foreground leading-relaxed">{question.explanation}</p>
+              </div>
+            )}
+
             {isAnswered && (
-              <div className="pt-4 flex justify-end">
-                <Button
-                  onClick={nextQuestion}
-                  className="bg-primary hover:bg-primary/90"
-                >
+              <div className="pt-2 flex justify-end">
+                <Button onClick={nextQuestion} className="bg-primary hover:bg-primary/90">
                   {currentQuestion + 1 < topic.questions.length ? (
                     <>
                       Próxima Pergunta

@@ -1,12 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Play, Clock, BookOpen, Award, Droplets, Leaf, Bug } from "lucide-react"
+import { Play, Clock, BookOpen, Award, Droplets, Leaf, Bird } from "lucide-react"
 import { VideoPlayer } from "@/components/video-player"
+import { cn } from "@/lib/utils"
+
+const VIDEO_PROGRESS_KEY = "ecolearn_video_started"
 
 export function CoursesContent() {
   const [activeTab, setActiveTab] = useState("categories")
+  const [hasStartedVideo, setHasStartedVideo] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem(VIDEO_PROGRESS_KEY)
+    if (saved === "true") setHasStartedVideo(true)
+  }, [])
+
+  const handleVideoStart = () => {
+    localStorage.setItem(VIDEO_PROGRESS_KEY, "true")
+    setHasStartedVideo(true)
+    setActiveTab("featured")
+  }
 
   const courses = [
     {
@@ -17,7 +32,8 @@ export function CoursesContent() {
       color: "blue",
       status: "Novo Curso!",
       lessons: 8,
-      duration: "2h 30min"
+      duration: "2h 30min",
+      available: true,
     },
     {
       id: "meio-ambiente",
@@ -27,17 +43,19 @@ export function CoursesContent() {
       color: "green",
       status: "Popular",
       lessons: 12,
-      duration: "4h 15min"
+      duration: "4h 15min",
+      available: true,
     },
     {
       id: "animais",
       title: "Proteção Animal",
       description: "Fauna brasileira e conservação",
-      icon: Bug,
+      icon: Bird,
       color: "amber",
       status: "Recomendado",
       lessons: 10,
-      duration: "3h 45min"
+      duration: "3h 45min",
+      available: false,
     },
     {
       id: "reciclagem",
@@ -47,16 +65,17 @@ export function CoursesContent() {
       color: "purple",
       status: "Essencial",
       lessons: 6,
-      duration: "1h 50min"
-    }
+      duration: "1h 50min",
+      available: false,
+    },
   ]
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; hover: string }> = {
-      blue: { bg: "bg-blue-500/20", text: "text-blue-500", hover: "hover:border-blue-500" },
-      green: { bg: "bg-green-500/20", text: "text-green-500", hover: "hover:border-green-500" },
-      amber: { bg: "bg-amber-500/20", text: "text-amber-500", hover: "hover:border-amber-500" },
-      purple: { bg: "bg-purple-500/20", text: "text-purple-500", hover: "hover:border-purple-500" }
+      blue:   { bg: "bg-blue-500/20",   text: "text-blue-500",   hover: "hover:border-blue-500" },
+      green:  { bg: "bg-green-500/20",  text: "text-green-500",  hover: "hover:border-green-500" },
+      amber:  { bg: "bg-amber-500/20",  text: "text-amber-500",  hover: "hover:border-amber-500" },
+      purple: { bg: "bg-purple-500/20", text: "text-purple-500", hover: "hover:border-purple-500" },
     }
     return colors[color] || colors.green
   }
@@ -64,7 +83,7 @@ export function CoursesContent() {
   return (
     <div className="flex-1 p-8 overflow-y-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-primary mb-2">
+        <h1 className="text-3xl font-bold text-primary mb-2 text-balance">
           Cursos de Sustentabilidade
         </h1>
         <p className="text-muted-foreground">
@@ -72,13 +91,37 @@ export function CoursesContent() {
         </p>
       </div>
 
+      {/* Continue assistindo */}
+      {hasStartedVideo && (
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-foreground mb-3">Continue assistindo</h2>
+          <Card
+            className="bg-card border-border cursor-pointer hover:border-primary transition-all duration-200"
+            onClick={() => setActiveTab("featured")}
+          >
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <Play className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-foreground truncate">
+                  A Odisseia de uma Garrafa - ONU Meio Ambiente
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">Vídeo em Destaque &middot; 2 minutos</p>
+              </div>
+              <span className="text-xs text-primary font-medium whitespace-nowrap">Continuar</span>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="flex gap-2 mb-6 bg-muted/50 p-1 rounded-lg w-fit">
         <button
           type="button"
           onClick={() => setActiveTab("categories")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === "categories" 
-              ? "bg-background text-foreground shadow-sm" 
+            activeTab === "categories"
+              ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -88,8 +131,8 @@ export function CoursesContent() {
           type="button"
           onClick={() => setActiveTab("featured")}
           className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === "featured" 
-              ? "bg-background text-foreground shadow-sm" 
+            activeTab === "featured"
+              ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -103,13 +146,30 @@ export function CoursesContent() {
             const colorClasses = getColorClasses(course.color)
             const IconComponent = course.icon
             return (
-              <Card 
+              <Card
                 key={course.id}
-                className={`bg-card border-border ${colorClasses.hover} transition-all cursor-pointer hover:scale-105 group`}
+                className={cn(
+                  "bg-card border-border transition-all group relative overflow-hidden",
+                  course.available
+                    ? `${colorClasses.hover} cursor-pointer hover:scale-105`
+                    : "opacity-70 cursor-not-allowed"
+                )}
               >
+                {/* Em breve overlay */}
+                {!course.available && (
+                  <div className="absolute top-3 right-3 z-10">
+                    <span className="bg-muted text-muted-foreground text-xs font-semibold px-2 py-1 rounded-full border border-border">
+                      Em breve
+                    </span>
+                  </div>
+                )}
                 <CardContent className="p-6">
-                  <div className={`w-16 h-16 rounded-full ${colorClasses.bg} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                    <IconComponent className={`w-8 h-8 ${colorClasses.text}`} />
+                  <div className={cn(
+                    "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform",
+                    colorClasses.bg,
+                    course.available && "group-hover:scale-110"
+                  )}>
+                    <IconComponent className={cn("w-8 h-8", colorClasses.text)} />
                   </div>
                   <h3 className="font-semibold text-foreground mb-1 text-center">{course.title}</h3>
                   <p className="text-xs text-muted-foreground text-center mb-3">{course.description}</p>
@@ -123,7 +183,9 @@ export function CoursesContent() {
                       {course.duration}
                     </span>
                   </div>
-                  <p className={`text-xs font-medium ${colorClasses.text} text-center`}>{course.status}</p>
+                  <p className={cn("text-xs font-medium text-center", colorClasses.text)}>
+                    {course.available ? course.status : "Em desenvolvimento"}
+                  </p>
                 </CardContent>
               </Card>
             )
@@ -139,6 +201,7 @@ export function CoursesContent() {
                 src="/images/video-onu.mp4"
                 poster="/images/meio-ambiente.jpg"
                 title="A Odisseia de uma Garrafa - ONU Meio Ambiente"
+                onPlay={handleVideoStart}
               />
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-3">
@@ -149,7 +212,7 @@ export function CoursesContent() {
                   A Odisseia de uma Garrafa - ONU Meio Ambiente
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Acompanhe a jornada de uma garrafa plástica e entenda o impacto do plástico nos oceanos. 
+                  Acompanhe a jornada de uma garrafa plástica e entenda o impacto do plástico nos oceanos.
                   Este vídeo educativo da ONU Brasil mostra a importância da reciclagem e do consumo consciente.
                 </p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
