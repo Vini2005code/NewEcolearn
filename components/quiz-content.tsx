@@ -29,6 +29,14 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
   const [isTimerActive, setIsTimerActive] = useState(false)
 
   const topic = quizTopics.find(t => t.id === topicId) as QuizTopic
+
+  useEffect(() => {
+    if (!topic) return
+    topic.questions.forEach((q) => {
+      const img = new window.Image()
+      img.src = q.image
+    })
+  }, [topic])
   const question = topic?.questions[currentQuestion]
   const progress = ((currentQuestion + 1) / topic?.questions.length) * 100
 
@@ -275,6 +283,7 @@ export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
               src={question.image}
               alt={`Ilustração para: ${question.question}`}
               fill
+              sizes="(max-width: 768px) 100vw, 768px"
               className="object-cover transition-opacity duration-500"
               priority
             />
