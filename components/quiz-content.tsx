@@ -1,339 +1,301 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { quizTopics, calculateScore, type QuizTopic } from "@/lib/quiz-data"
-import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy, Clock } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Lock, RotateCcw, Sparkles, Trophy, XCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { calculateScore, getTopicById } from "@/lib/quiz-data"
+import { aiQuizGeneration } from "@/lib/ai-quiz"
 import { cn } from "@/lib/utils"
 
 interface QuizContentProps {
   topicId: string
-  onComplete: (score: number) => void
+  onComplete: (score: number, xpEarned: number) => void
   onBack: () => void
 }
 
 type QuizState = "intro" | "playing" | "result"
 
 export function QuizContent({ topicId, onComplete, onBack }: QuizContentProps) {
+  const topic = getTopicById(topicId)
   const [quizState, setQuizState] = useState<QuizState>("intro")
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
-  const [correctAnswers, setCorrectAnswers] = useState(0)
+  const [correctQuestionIndexes, setCorrectQuestionIndexes] = useState<number[]>([])
   const [timeLeft, setTimeLeft] = useState(30)
-  const [isTimerActive, setIsTimerActive] = useState(false)
 
-  const topic = quizTopics.find(t => t.id === topicId) as QuizTopic
   const question = topic?.questions[currentQuestion]
-  const progress = ((currentQuestion + 1) / topic?.questions.length) * 100
+  const progress = topic ? ((currentQuestion + 1) / topic.questions.length) * 100 : 0
+  const xpEarned = useMemo(() => {
+    if (!topic) return 0
+    return correctQuestionIndexes.reduce((total, questionIndex) => total + topic.questions[questionIndex].xp, 0)
+  }, [correctQuestionIndexes, topic])
+
+  const handleAnswer = useCallback((answerIndex: number) => {
+    if (!question || isAnswered) return
+
+    setSelectedAnswer(answerIndex)
+    setIsAnswered(true)
+
+    if (answerIndex === question.correct) {
+      setCorrectQuestionIndexes((current) => [...current, currentQuestion])
+    }
+  }, [currentQuestion, isAnswered, question])
 
   useEffect(() => {
-    if (isTimerActive && timeLeft > 0 && !isAnswered) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
-      return () => clearTimeout(timer)
-    } else if (timeLeft === 0 && !isAnswered) {
+    if (quizState !== "playing" || isAnswered) return
+    if (timeLeft <= 0) {
       handleAnswer(-1)
+      return
     }
-  }, [timeLeft, isTimerActive, isAnswered])
+
+    const timer = window.setTimeout(() => setTimeLeft((current) => current - 1), 1000)
+    return () => window.clearTimeout(timer)
+  }, [timeLeft, quizState, isAnswered, handleAnswer])
 
   const startQuiz = () => {
     setQuizState("playing")
-    setIsTimerActive(true)
-    setTimeLeft(30)
-  }
-
-  const handleAnswer = (answerIndex: number) => {
-    if (isAnswered) return
-    
-    setSelectedAnswer(answerIndex)
-    setIsAnswered(true)
-    setIsTimerActive(false)
-    
-    if (answerIndex === question.correct) {
-      setCorrectAnswers(prev => prev + 1)
-    }
-  }
-
-  const nextQuestion = () => {
-    if (currentQuestion + 1 < topic.questions.length) {
-      setCurrentQuestion(prev => prev + 1)
-      setSelectedAnswer(null)
-      setIsAnswered(false)
-      setTimeLeft(30)
-      setIsTimerActive(true)
-    } else {
-      const finalScore = calculateScore(correctAnswers, topic.questions.length)
-      onComplete(finalScore)
-      setQuizState("result")
-    }
-  }
-
-  const restartQuiz = () => {
     setCurrentQuestion(0)
     setSelectedAnswer(null)
     setIsAnswered(false)
-    setCorrectAnswers(0)
+    setCorrectQuestionIndexes([])
     setTimeLeft(30)
-    setQuizState("intro")
-    setIsTimerActive(false)
   }
 
-  if (!topic) {
+  const nextQuestion = () => {
+    if (!topic) return
+
+    if (currentQuestion + 1 < topic.questions.length) {
+      setCurrentQuestion((current) => current + 1)
+      setSelectedAnswer(null)
+      setIsAnswered(false)
+      setTimeLeft(30)
+      return
+    }
+
+    const finalCorrect = correctQuestionIndexes.length
+    const finalScore = calculateScore(finalCorrect, topic.questions.length)
+    onComplete(finalScore, xpEarned)
+    setQuizState("result")
+  }
+
+  const restartQuiz = () => {
+    setQuizState("intro")
+    setCurrentQuestion(0)
+    setSelectedAnswer(null)
+    setIsAnswered(false)
+    setCorrectQuestionIndexes([])
+    setTimeLeft(30)
+  }
+
+  if (!topic || !question) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-muted-foreground">Tópico não encontrado</p>
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <Card className="border-border bg-card">
+          <CardContent className="p-8 text-center">
+            <p className="text-muted-foreground">Tópico não encontrado.</p>
+            <Button className="mt-4" onClick={onBack}>
+              Voltar
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
-  // Intro Screen
   if (quizState === "intro") {
     return (
-      <div className="flex-1 p-8 overflow-y-auto">
-        <Card className="max-w-2xl mx-auto bg-card border-border overflow-hidden">
-          <div className="relative h-56">
-            <Image
-              src={topic.image || "/placeholder.svg"}
-              alt={topic.name}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-4xl">{topic.icon}</span>
-                <h1 className="text-3xl font-bold text-white">{topic.name}</h1>
-              </div>
-              <p className="text-white/80">{topic.description}</p>
-            </div>
-          </div>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">{topic.questions.length}</p>
-                <p className="text-sm text-muted-foreground">Perguntas</p>
-              </div>
-              <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-foreground">30s</p>
-                <p className="text-sm text-muted-foreground">Por pergunta</p>
-              </div>
-            </div>
-            
-            <div className="bg-primary/10 rounded-lg p-4 border border-primary/20">
-              <h3 className="font-semibold text-foreground mb-2">Regras do Quiz</h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Você tem 30 segundos para responder cada pergunta</li>
-                <li>• Cada resposta correta aumenta sua pontuação</li>
-                <li>• Não é possível voltar para perguntas anteriores</li>
-                <li>• Seu melhor score será salvo automaticamente</li>
-              </ul>
-            </div>
-
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={onBack}
-              >
+      <div className="min-h-screen overflow-y-auto px-5 py-20 sm:px-8 lg:px-10 lg:py-10">
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="relative min-h-[520px] overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
+            <Image src={topic.image} alt={topic.name} fill priority className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/45 to-emerald-950/30" />
+            <div className="relative flex min-h-[520px] flex-col justify-between p-6 text-white sm:p-8">
+              <Button variant="outline" className="w-fit border-white/30 bg-white/10 text-white hover:bg-white/20" onClick={onBack}>
+                <ArrowLeft className="h-4 w-4" />
                 Voltar
               </Button>
-              <Button
-                className="flex-1 bg-primary hover:bg-primary/90"
-                onClick={startQuiz}
-              >
-                Começar Quiz
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Result Screen
-  if (quizState === "result") {
-    const finalScore = calculateScore(correctAnswers, topic.questions.length)
-    const percentage = Math.round((correctAnswers / topic.questions.length) * 100)
-    
-    return (
-      <div className="flex-1 p-8 overflow-y-auto">
-        <Card className="max-w-2xl mx-auto bg-card border-border">
-          <CardHeader className="text-center pb-2">
-            <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-              <Trophy className="w-10 h-10 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Quiz Finalizado!</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="text-center">
-              <p className="text-5xl font-bold text-primary mb-2">
-                R$ {finalScore.toFixed(2).replace(".", ",")}
-              </p>
-              <p className="text-muted-foreground">Sua pontuação neste quiz</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-green-500">{correctAnswers}</p>
-                <p className="text-sm text-muted-foreground">Acertos</p>
+              <div>
+                <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] backdrop-blur">
+                  {topic.difficulty}
+                </span>
+                <h1 className="mt-5 text-4xl font-semibold sm:text-6xl">{topic.name}</h1>
+                <p className="mt-4 max-w-xl text-base leading-7 text-white/75">{topic.description}</p>
               </div>
-              <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-red-500">{topic.questions.length - correctAnswers}</p>
-                <p className="text-sm text-muted-foreground">Erros</p>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-muted-foreground">Desempenho</span>
-                <span className="font-medium text-foreground">{percentage}%</span>
-              </div>
-              <Progress value={percentage} className="h-3" />
-            </div>
-
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="flex-1 bg-transparent"
-                onClick={onBack}
-              >
-                Voltar ao Dashboard
-              </Button>
-              <Button
-                className="flex-1 bg-primary hover:bg-primary/90"
-                onClick={restartQuiz}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Tentar Novamente
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Playing Screen
-  return (
-    <div className="flex-1 p-8 overflow-y-auto">
-      <div className="max-w-3xl mx-auto">
-        {/* Progress Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">
-              Pergunta {currentQuestion + 1} de {topic.questions.length}
-            </span>
-            <div className={cn(
-              "flex items-center gap-2 px-3 py-1 rounded-full",
-              timeLeft <= 10 ? "bg-red-500/20 text-red-500" : "bg-secondary text-muted-foreground"
-            )}>
-              <Clock className="w-4 h-4" />
-              <span className="font-mono font-medium">{timeLeft}s</span>
             </div>
           </div>
-          <Progress value={progress} className="h-2" />
+
+          <div className="grid content-start gap-5">
+            <Card className="border-border bg-card">
+              <CardContent className="p-6">
+                <div className="mb-6 flex items-center gap-3">
+                    <div className="rounded-md bg-primary/10 p-3 text-primary">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Desafio gamificado</p>
+                    <h2 className="text-2xl font-semibold">Ganhe XP por resposta</h2>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="rounded-lg bg-secondary/60 p-4 text-center">
+                    <p className="text-2xl font-semibold">{topic.questions.length}</p>
+                    <p className="text-xs text-muted-foreground">perguntas</p>
+                  </div>
+                  <div className="rounded-lg bg-secondary/60 p-4 text-center">
+                    <p className="text-2xl font-semibold">30s</p>
+                    <p className="text-xs text-muted-foreground">por questão</p>
+                  </div>
+                  <div className="rounded-lg bg-secondary/60 p-4 text-center">
+                    <p className="text-2xl font-semibold">{topic.questions.reduce((total, item) => total + item.xp, 0)}</p>
+                    <p className="text-xs text-muted-foreground">XP total</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 rounded-lg border border-dashed border-border bg-background/50 p-4">
+                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+                    <Lock className="h-4 w-4 text-primary" />
+                    IA para quiz: admin-only
+                  </div>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    Geração por IA está marcada como {aiQuizGeneration.status} e não aparece para estudantes.
+                  </p>
+                </div>
+
+                <Button size="lg" className="mt-6 h-12 w-full rounded-md text-base" onClick={startQuiz}>
+                  Iniciar quiz
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (quizState === "result") {
+    const score = calculateScore(correctQuestionIndexes.length, topic.questions.length)
+    const missed = topic.questions.length - correctQuestionIndexes.length
+
+    return (
+      <div className="flex min-h-screen items-center justify-center px-5 py-20 sm:px-8 lg:px-10 lg:py-10">
+        <Card className="w-full max-w-2xl border-border bg-card shadow-2xl">
+          <CardContent className="p-8 text-center">
+            <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Trophy className="h-10 w-10" />
+            </div>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">Desafio concluído</p>
+            <h1 className="mt-3 text-4xl font-semibold">{score}% de acerto</h1>
+            <p className="mt-3 text-muted-foreground">Você ganhou {xpEarned} XP nesta rodada.</p>
+
+            <div className="mt-8 grid grid-cols-3 gap-3">
+              <div className="rounded-lg bg-secondary/60 p-4">
+                <p className="text-2xl font-semibold text-primary">{correctQuestionIndexes.length}</p>
+                <p className="text-xs text-muted-foreground">acertos</p>
+              </div>
+              <div className="rounded-lg bg-secondary/60 p-4">
+                <p className="text-2xl font-semibold text-destructive">{missed}</p>
+                <p className="text-xs text-muted-foreground">erros</p>
+              </div>
+              <div className="rounded-lg bg-secondary/60 p-4">
+                <p className="text-2xl font-semibold">{xpEarned}</p>
+                <p className="text-xs text-muted-foreground">XP</p>
+              </div>
+            </div>
+
+            <Progress value={score} className="mt-6 h-3" />
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <Button variant="outline" className="bg-transparent" onClick={onBack}>
+                Voltar à home
+              </Button>
+              <Button onClick={restartQuiz}>
+                <RotateCcw className="h-4 w-4" />
+                Tentar novamente
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen overflow-y-auto px-5 py-20 sm:px-8 lg:px-10 lg:py-10">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">Pergunta {currentQuestion + 1} de {topic.questions.length}</p>
+            <h1 className="text-2xl font-semibold">{topic.name}</h1>
+          </div>
+          <div className={cn("flex w-fit items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold", timeLeft <= 10 ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary")}>
+            <Clock className="h-4 w-4" />
+            {timeLeft}s
+          </div>
         </div>
 
-        {/* Question Card */}
-        <Card className="bg-card border-border overflow-hidden">
-          {/* Question Image */}
-          <div className="relative w-full h-52 overflow-hidden">
-            <Image
-              key={question.image}
-              src={question.image}
-              alt={`Ilustração para: ${question.question}`}
-              fill
-              className="object-cover transition-opacity duration-500"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent" />
+        <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <Progress value={progress} className="h-3" />
+          <span className="text-sm font-semibold text-muted-foreground">{xpEarned} XP</span>
+        </div>
+
+        <Card className="overflow-hidden border-border bg-card shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300" key={question.id}>
+          <div className="relative h-64 sm:h-80">
+            <Image src={question.image} alt={`Imagem da pergunta: ${question.question}`} fill priority className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
           </div>
-          <CardHeader>
-            <CardTitle className="text-xl leading-relaxed">
-              {question.question}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {question.options.map((option, index) => {
-              const isSelected = selectedAnswer === index
-              const isCorrect = index === question.correct
-              const showResult = isAnswered
-              
-              return (
-                <button
-                  key={index}
-                  onClick={() => handleAnswer(index)}
-                  disabled={isAnswered}
-                  className={cn(
-                    "w-full p-4 rounded-lg border-2 text-left transition-all duration-200 flex items-center gap-3",
-                    !isAnswered && "hover:border-primary hover:bg-primary/5 cursor-pointer",
-                    !isAnswered && "border-border bg-secondary/30",
-                    isAnswered && isCorrect && "border-green-500 bg-green-500/10",
-                    isAnswered && isSelected && !isCorrect && "border-red-500 bg-red-500/10",
-                    isAnswered && !isSelected && !isCorrect && "border-border bg-secondary/30 opacity-50"
-                  )}
-                >
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center font-medium text-sm flex-shrink-0",
-                    !isAnswered && "bg-secondary text-muted-foreground",
-                    isAnswered && isCorrect && "bg-green-500 text-white",
-                    isAnswered && isSelected && !isCorrect && "bg-red-500 text-white",
-                    isAnswered && !isSelected && !isCorrect && "bg-secondary text-muted-foreground"
-                  )}>
-                    {showResult && isCorrect ? (
-                      <CheckCircle2 className="w-5 h-5" />
-                    ) : showResult && isSelected && !isCorrect ? (
-                      <XCircle className="w-5 h-5" />
-                    ) : (
-                      String.fromCharCode(65 + index)
+
+          <CardContent className="p-5 sm:p-7">
+            <h2 className="text-2xl font-semibold leading-tight">{question.question}</h2>
+            <div className="mt-6 grid gap-3">
+              {question.options.map((option, index) => {
+                const isSelected = selectedAnswer === index
+                const isCorrect = index === question.correct
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleAnswer(index)}
+                    disabled={isAnswered}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-lg border p-4 text-left transition duration-200",
+                      !isAnswered && "border-border bg-secondary/35 hover:-translate-y-0.5 hover:border-primary/60 hover:bg-primary/5",
+                      isAnswered && isCorrect && "border-primary bg-primary/10",
+                      isAnswered && isSelected && !isCorrect && "border-destructive bg-destructive/10",
+                      isAnswered && !isSelected && !isCorrect && "border-border bg-secondary/25 opacity-50",
                     )}
-                  </div>
-                  <span className={cn(
-                    "flex-1",
-                    isAnswered && isCorrect && "text-green-500 font-medium",
-                    isAnswered && isSelected && !isCorrect && "text-red-500"
-                  )}>
-                    {option}
-                  </span>
-                </button>
-              )
-            })}
+                  >
+                    <span
+                      className={cn(
+                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-background font-semibold",
+                        isAnswered && isCorrect && "bg-primary text-primary-foreground",
+                        isAnswered && isSelected && !isCorrect && "bg-destructive text-white",
+                      )}
+                    >
+                      {isAnswered && isCorrect ? <CheckCircle2 className="h-5 w-5" /> : isAnswered && isSelected && !isCorrect ? <XCircle className="h-5 w-5" /> : String.fromCharCode(65 + index)}
+                    </span>
+                    <span className="text-sm font-medium sm:text-base">{option}</span>
+                  </button>
+                )
+              })}
+            </div>
 
             {isAnswered && (
-              <div className="pt-4 flex justify-end">
-                <Button
-                  onClick={nextQuestion}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {currentQuestion + 1 < topic.questions.length ? (
-                    <>
-                      Próxima Pergunta
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </>
-                  ) : (
-                    "Ver Resultado"
-                  )}
+              <div className="mt-6 flex justify-end">
+                <Button onClick={nextQuestion} className="rounded-md">
+                  {currentQuestion + 1 < topic.questions.length ? "Próxima pergunta" : "Ver resultado"}
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             )}
           </CardContent>
         </Card>
-
-        {/* Score Preview */}
-        <div className="mt-4 flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-green-500" />
-            <span>Acertos: {correctAnswers}</span>
-          </div>
-          <div className="w-px h-4 bg-border" />
-          <div className="flex items-center gap-2">
-            <XCircle className="w-4 h-4 text-red-500" />
-            <span>Erros: {currentQuestion - correctAnswers + (isAnswered && selectedAnswer !== question.correct ? 1 : 0)}</span>
-          </div>
-        </div>
       </div>
     </div>
   )

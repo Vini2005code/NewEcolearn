@@ -1,208 +1,225 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
+import { Award, BookOpen, Building2, Clock, Droplets, Leaf, Play, Recycle, ShieldCheck, Sprout } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Play, Clock, BookOpen, Award, Droplets, Leaf, Bug } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
 import { VideoPlayer } from "@/components/video-player"
+import { cn } from "@/lib/utils"
+
+const courses = [
+  {
+    id: "reciclagem",
+    title: "Reciclagem inteligente",
+    description: "Como separar resíduos, reduzir desperdício e mobilizar a escola.",
+    thumbnail: "/images/quiz/coleta-seletiva.jpg",
+    sponsor: "Sponsor ready",
+    progress: 38,
+    lessons: 6,
+    duration: "1h 50min",
+    icon: Recycle,
+  },
+  {
+    id: "agua",
+    title: "Água e consumo consciente",
+    description: "Hábitos simples para preservar água em casa, na escola e no bairro.",
+    thumbnail: "/images/quiz/economia-agua.jpg",
+    sponsor: "Parceiro futuro",
+    progress: 12,
+    lessons: 8,
+    duration: "2h 30min",
+    icon: Droplets,
+  },
+  {
+    id: "biodiversidade",
+    title: "Biodiversidade brasileira",
+    description: "Fauna, habitat, espécies ameaçadas e ações de conservação.",
+    thumbnail: "/images/animais.jpg",
+    sponsor: "Institucional",
+    progress: 0,
+    lessons: 10,
+    duration: "3h 20min",
+    icon: Sprout,
+  },
+]
+
+const videos = [
+  {
+    title: "A Odisseia de uma Garrafa",
+    description: "Vídeo educativo sobre o ciclo do plástico, reciclagem e impacto nos oceanos.",
+    src: "/images/video-onu.mp4",
+    poster: "/images/meio-ambiente.jpg",
+    source: "ONU Meio Ambiente",
+  },
+]
 
 export function CoursesContent() {
-  const [activeTab, setActiveTab] = useState("categories")
-
-  const courses = [
-    {
-      id: "agua",
-      title: "Conscientização de Água",
-      description: "Aprenda sobre a importância da água",
-      icon: Droplets,
-      color: "blue",
-      status: "Novo Curso!",
-      lessons: 8,
-      duration: "2h 30min"
-    },
-    {
-      id: "meio-ambiente",
-      title: "Meio Ambiente",
-      description: "Preservação e sustentabilidade",
-      icon: Leaf,
-      color: "green",
-      status: "Popular",
-      lessons: 12,
-      duration: "4h 15min"
-    },
-    {
-      id: "animais",
-      title: "Proteção Animal",
-      description: "Fauna brasileira e conservação",
-      icon: Bug,
-      color: "amber",
-      status: "Recomendado",
-      lessons: 10,
-      duration: "3h 45min"
-    },
-    {
-      id: "reciclagem",
-      title: "Reciclagem",
-      description: "Como reciclar corretamente",
-      icon: Award,
-      color: "purple",
-      status: "Essencial",
-      lessons: 6,
-      duration: "1h 50min"
-    }
-  ]
-
-  const getColorClasses = (color: string) => {
-    const colors: Record<string, { bg: string; text: string; hover: string }> = {
-      blue: { bg: "bg-blue-500/20", text: "text-blue-500", hover: "hover:border-blue-500" },
-      green: { bg: "bg-green-500/20", text: "text-green-500", hover: "hover:border-green-500" },
-      amber: { bg: "bg-amber-500/20", text: "text-amber-500", hover: "hover:border-amber-500" },
-      purple: { bg: "bg-purple-500/20", text: "text-purple-500", hover: "hover:border-purple-500" }
-    }
-    return colors[color] || colors.green
-  }
+  const [activeTab, setActiveTab] = useState<"courses" | "videos">("courses")
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-primary mb-2">
-          Cursos de Sustentabilidade
-        </h1>
-        <p className="text-muted-foreground">
-          Explore nossos conteúdos e aprenda a cuidar do planeta.
-        </p>
-      </div>
+    <div className="min-h-screen overflow-y-auto px-5 py-20 sm:px-8 lg:px-10 lg:py-10">
+      <div className="mx-auto max-w-7xl">
+        <section className="mb-8 grid gap-6 lg:grid-cols-[1fr_0.7fr]">
+          <div>
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+              Cursos MVP
+            </span>
+            <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
+              Trilhas ambientais prontas para crescer com patrocinadores.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+              A seção mostra cursos, vídeos e progresso sem construir uma plataforma EAD completa. Os cards já deixam espaço para thumbnail, sponsor logo e campanhas futuras.
+            </p>
+          </div>
 
-      <div className="flex gap-2 mb-6 bg-muted/50 p-1 rounded-lg w-fit">
-        <button
-          type="button"
-          onClick={() => setActiveTab("categories")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === "categories" 
-              ? "bg-background text-foreground shadow-sm" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Cursos Disponíveis
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("featured")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-            activeTab === "featured" 
-              ? "bg-background text-foreground shadow-sm" 
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Vídeo em Destaque
-        </button>
-      </div>
-
-      {activeTab === "categories" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {courses.map((course) => {
-            const colorClasses = getColorClasses(course.color)
-            const IconComponent = course.icon
-            return (
-              <Card 
-                key={course.id}
-                className={`bg-card border-border ${colorClasses.hover} transition-all cursor-pointer hover:scale-105 group`}
-              >
-                <CardContent className="p-6">
-                  <div className={`w-16 h-16 rounded-full ${colorClasses.bg} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
-                    <IconComponent className={`w-8 h-8 ${colorClasses.text}`} />
-                  </div>
-                  <h3 className="font-semibold text-foreground mb-1 text-center">{course.title}</h3>
-                  <p className="text-xs text-muted-foreground text-center mb-3">{course.description}</p>
-                  <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground mb-2">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="w-3 h-3" />
-                      {course.lessons} aulas
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {course.duration}
-                    </span>
-                  </div>
-                  <p className={`text-xs font-medium ${colorClasses.text} text-center`}>{course.status}</p>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      )}
-
-      {activeTab === "featured" && (
-        <div className="space-y-6">
-          <Card className="bg-card border-border overflow-hidden">
-            <CardContent className="p-0">
-              <VideoPlayer
-                src="/images/video-onu.mp4"
-                poster="/images/meio-ambiente.jpg"
-                title="A Odisseia de uma Garrafa - ONU Meio Ambiente"
-              />
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Play className="w-5 h-5 text-primary" />
-                  <span className="text-sm text-primary font-medium">Vídeo em Destaque</span>
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-md bg-primary/10 p-3 text-primary">
+                  <Building2 className="h-6 w-6" />
                 </div>
-                <h2 className="text-xl font-bold text-foreground mb-2">
-                  A Odisseia de uma Garrafa - ONU Meio Ambiente
-                </h2>
-                <p className="text-muted-foreground mb-4">
-                  Acompanhe a jornada de uma garrafa plástica e entenda o impacto do plástico nos oceanos. 
-                  Este vídeo educativo da ONU Brasil mostra a importância da reciclagem e do consumo consciente.
-                </p>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    2 minutos
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Award className="w-4 h-4" />
-                    ONU Brasil
-                  </span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Arquitetura patrocinável</p>
+                  <h2 className="text-xl font-semibold">Conteúdo institucional futuro</h2>
+                </div>
+              </div>
+              <div className="mt-5 grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-lg bg-secondary/60 p-3">
+                  <p className="text-2xl font-semibold">3</p>
+                  <p className="text-xs text-muted-foreground">cursos</p>
+                </div>
+                <div className="rounded-lg bg-secondary/60 p-3">
+                  <p className="text-2xl font-semibold">1</p>
+                  <p className="text-xs text-muted-foreground">vídeo</p>
+                </div>
+                <div className="rounded-lg bg-secondary/60 p-3">
+                  <p className="text-2xl font-semibold">0</p>
+                  <p className="text-xs text-muted-foreground">APIs</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+        </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-card border-border p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Leaf className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Meio Ambiente</p>
-                  <p className="text-xs text-muted-foreground">Categoria principal</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="bg-card border-border p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Droplets className="w-5 h-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Oceanos</p>
-                  <p className="text-xs text-muted-foreground">Subtema abordado</p>
-                </div>
-              </div>
-            </Card>
-            <Card className="bg-card border-border p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-amber-500" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">Certificado</p>
-                  <p className="text-xs text-muted-foreground">Ao completar</p>
-                </div>
-              </div>
-            </Card>
-          </div>
+        <div className="mb-6 flex w-fit rounded-lg border border-border bg-secondary/45 p-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab("courses")}
+            className={cn("rounded-md px-4 py-2 text-sm font-medium transition", activeTab === "courses" ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground")}
+          >
+            Cursos
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("videos")}
+            className={cn("rounded-md px-4 py-2 text-sm font-medium transition", activeTab === "videos" ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground")}
+          >
+            Vídeos
+          </button>
         </div>
-      )}
+
+        {activeTab === "courses" && (
+          <div className="grid gap-5 lg:grid-cols-3">
+            {courses.map((course) => {
+              const Icon = course.icon
+              return (
+                <Card key={course.id} className="group overflow-hidden border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                  <div className="relative h-48">
+                    <Image src={course.thumbnail} alt={course.title} fill className="object-cover transition duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <div className="absolute left-4 top-4 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                      {course.sponsor}
+                    </div>
+                    <div className="absolute bottom-4 left-4 flex items-center gap-3 text-white">
+                      <div className="rounded-md bg-white/20 p-2 backdrop-blur">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <h2 className="text-xl font-semibold">{course.title}</h2>
+                    </div>
+                  </div>
+                  <CardContent className="p-5">
+                    <p className="min-h-16 text-sm leading-6 text-muted-foreground">{course.description}</p>
+                    <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        {course.lessons} aulas
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        {course.duration}
+                      </span>
+                    </div>
+                    <div className="mt-5">
+                      <div className="mb-2 flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Progresso mockado</span>
+                        <span className="font-semibold">{course.progress}%</span>
+                      </div>
+                      <Progress value={course.progress} className="h-2" />
+                    </div>
+                    <Button variant="outline" className="mt-5 w-full bg-transparent">
+                      Ver trilha
+                      <Play className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+
+        {activeTab === "videos" && (
+          <div className="grid gap-5 lg:grid-cols-[1fr_0.42fr]">
+            {videos.map((video) => (
+              <Card key={video.title} className="overflow-hidden border-border bg-card shadow-xl">
+                <CardContent className="p-0">
+                  <VideoPlayer src={video.src} poster={video.poster} title={video.title} />
+                  <div className="p-6">
+                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary">
+                      <Play className="h-4 w-4" />
+                      Vídeo educativo
+                    </div>
+                    <h2 className="text-2xl font-semibold">{video.title}</h2>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{video.description}</p>
+                    <p className="mt-4 text-sm font-medium">{video.source}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            <div className="grid gap-5">
+              <Card className="border-border bg-card">
+                <CardContent className="p-6">
+                  <ShieldCheck className="mb-5 h-6 w-6 text-primary" />
+                  <h3 className="text-xl font-semibold">Player responsivo</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    Usa HTML5 video com MP4, fallback WebM, poster, lazy-load e estado de erro.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="border-border bg-card">
+                <CardContent className="p-6">
+                  <Award className="mb-5 h-6 w-6 text-primary" />
+                  <h3 className="text-xl font-semibold">Aulas patrocinadas</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    Espaço preparado para logos e campanhas, ainda sem lógica comercial ativa.
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="border-border bg-card">
+                <CardContent className="p-6">
+                  <Leaf className="mb-5 h-6 w-6 text-primary" />
+                  <h3 className="text-xl font-semibold">Conteúdo leve</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    Sem chamadas de IA ou APIs desnecessárias durante o aprendizado.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
