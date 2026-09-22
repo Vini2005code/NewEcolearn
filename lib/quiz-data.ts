@@ -296,6 +296,100 @@ export const quizTopics: QuizTopic[] = [
     ]
   },
   {
+    id: "agronomia",
+    name: "Agronomia",
+    icon: "🌾",
+    image: "/images/meio-ambiente.jpg",
+    description: "Teste seus conhecimentos sobre solos, produção vegetal e agricultura sustentável",
+    questions: [
+      {
+        id: 1,
+        question: "Qual é a principal função da matéria orgânica no solo?",
+        image: "/images/quiz/residuos-organicos.jpg",
+        options: [
+          "Aumentar a erosão",
+          "Melhorar a estrutura e a retenção de água",
+          "Diminuir a atividade dos microrganismos",
+          "Impedir o crescimento das raízes"
+        ],
+        correct: 1,
+        explanation: "A matéria orgânica melhora a estrutura do solo, aumenta a retenção de água e favorece a atividade dos microrganismos benéficos."
+      },
+      {
+        id: 2,
+        question: "Qual gás as plantas absorvem da atmosfera durante a fotossíntese?",
+        image: "/images/quiz/energia-renovavel.jpg",
+        options: ["Oxigênio", "Nitrogênio", "Gás carbônico (CO₂)", "Hidrogênio"],
+        correct: 2,
+        explanation: "Durante a fotossíntese, as plantas absorvem gás carbônico e água para produzir glicose e liberar oxigênio."
+      },
+      {
+        id: 3,
+        question: "A qual ordem pertencem os besouros?",
+        image: "/images/quiz/animais-silvestres.jpg",
+        options: ["Lepidoptera", "Coleoptera", "Diptera", "Hemiptera"],
+        correct: 1,
+        explanation: "Os besouros pertencem à ordem Coleoptera, uma das maiores ordens de insetos."
+      },
+      {
+        id: 4,
+        question: "O que é uma doença de planta?",
+        image: "/images/quiz/vaso-planta.jpg",
+        options: ["Apenas a presença de insetos", "Uma alteração prejudicial no funcionamento normal da planta", "Falta de água exclusivamente", "Uma deficiência de máquinas agrícolas"],
+        correct: 1,
+        explanation: "Uma doença de planta é uma alteração prejudicial que compromete seu funcionamento normal, crescimento ou produção."
+      },
+      {
+        id: 5,
+        question: "Qual fator climático influencia diretamente a quantidade de água perdida pelas plantas por evapotranspiração?",
+        image: "/images/quiz/economia-agua.jpg",
+        options: ["Temperatura", "Tipo de semente", "Cor do solo apenas", "Profundidade da raiz apenas"],
+        correct: 0,
+        explanation: "A temperatura influencia diretamente a evapotranspiração: quanto mais elevada, maior tende a ser a perda de água pelas plantas."
+      },
+      {
+        id: 6,
+        question: "Para que serve principalmente um trator agrícola?",
+        image: "/images/quiz/desenvolvimento-sustentavel.jpg",
+        options: ["Somente transportar pessoas", "Realizar e fornecer potência para diversas operações agrícolas", "Fazer análise química do solo", "Controlar pragas biologicamente"],
+        correct: 1,
+        explanation: "O trator fornece potência e tração para operações como preparo do solo, plantio, cultivo e transporte de implementos."
+      },
+      {
+        id: 7,
+        question: "Qual é o principal objetivo da irrigação?",
+        image: "/images/quiz/economia-agua.jpg",
+        options: ["Fornecer água às plantas quando a chuva não é suficiente", "Aumentar a salinidade do solo", "Eliminar todos os nutrientes do solo", "Substituir completamente a adubação"],
+        correct: 0,
+        explanation: "A irrigação fornece água às plantas quando a chuva não atende às necessidades da cultura."
+      },
+      {
+        id: 8,
+        question: "Qual destes animais é considerado um ruminante?",
+        image: "/images/quiz/animais-silvestres.jpg",
+        options: ["Galinha", "Suíno", "Bovino", "Cavalo"],
+        correct: 2,
+        explanation: "O bovino é um ruminante, com sistema digestivo adaptado para aproveitar alimentos fibrosos."
+      },
+      {
+        id: 9,
+        question: "Qual prática ajuda a diminuir a erosão do solo?",
+        image: "/images/quiz/desmatamento.jpg",
+        options: ["Plantio em áreas totalmente descobertas", "Queimada frequente", "Plantio em nível/contorno", "Retirada da cobertura vegetal"],
+        correct: 2,
+        explanation: "O plantio em nível ou contorno reduz a velocidade da água da chuva e ajuda a conservar o solo."
+      },
+      {
+        id: 10,
+        question: "O que caracteriza o Manejo Integrado de Pragas (MIP)?",
+        image: "/images/quiz/desenvolvimento-sustentavel.jpg",
+        options: ["Usar somente inseticidas", "Utilizar diferentes métodos de controle de forma integrada e racional", "Não controlar nenhuma praga", "Aplicar defensivos diariamente"],
+        correct: 1,
+        explanation: "O MIP combina métodos de controle de forma integrada, racional e sustentável, reduzindo o uso desnecessário de defensivos."
+      }
+    ]
+  },
+  {
     id: "dengue",
     name: "Dengue",
     icon: "🦟",

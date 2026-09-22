@@ -15,7 +15,7 @@ interface DashboardContentProps {
   onStartQuiz: (topicId: string) => void
 }
 
-const TOTAL_TOPICS = 3
+const TOTAL_TOPICS = 4
 
 const topics = [
   {
@@ -38,6 +38,13 @@ const topics = [
     image: "/images/dengue.jpg",
     description: "Prevenção e combate",
     difficulty: "Difícil" as const,
+  },
+  {
+    id: "agronomia",
+    name: "Agronomia",
+    image: "/images/meio-ambiente.jpg",
+    description: "Solos, cultivos e agricultura sustentável",
+    difficulty: "Médio" as const,
   },
 ]
 
@@ -78,7 +85,7 @@ export function DashboardContent({
     {
       id: "green-explorer",
       title: "Explorador Verde",
-      description: "Complete todos os 3 tópicos",
+      description: "Complete todos os 4 tópicos",
       icon: Leaf,
       unlocked: uniqueTopicsCompleted >= TOTAL_TOPICS,
       color: "text-green-500",
@@ -211,7 +218,7 @@ export function DashboardContent({
         <h2 className="text-xl font-semibold text-foreground mb-4">
           Escolha um desafio para começar
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {topics.map((topic) => {
             const diff = difficultyConfig[topic.difficulty]
             return (

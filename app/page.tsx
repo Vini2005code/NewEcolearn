@@ -96,6 +96,7 @@ export default function EcoLearn() {
       case "meio-ambiente":
       case "animais":
       case "dengue":
+      case "agronomia":
         return (
           <QuizContent
             topicId={activeTab}

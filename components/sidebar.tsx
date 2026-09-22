@@ -7,6 +7,7 @@ import {
   Leaf,
   PawPrint,
   Bug,
+  Sprout,
   BookOpen,
   LogOut,
   Star,
@@ -25,6 +26,7 @@ const quizTopics = [
   { id: "meio-ambiente", name: "Meio Ambiente", icon: Leaf },
   { id: "animais", name: "Animais", icon: PawPrint },
   { id: "dengue", name: "Dengue", icon: Bug },
+  { id: "agronomia", name: "Agronomia", icon: Sprout },
 ]
 
 const resources = [
