@@ -103,13 +103,13 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
           className="h-full w-full"
           aria-label={title || "Vídeo educativo"}
           onLoadStart={() => setPlayerState("loading")}
+          onLoadedMetadata={() => setPlayerState("ready")}
           onCanPlay={() => setPlayerState("ready")}
           onWaiting={() => setPlayerState("loading")}
           onPlaying={() => setPlayerState("ready")}
           onError={handleError}
         >
           <source src={src} type="video/mp4" />
-          <source src={src.replace(/\.mp4$/i, ".webm")} type="video/webm" />
           <a href={src} download>
             Baixar vídeo
           </a>

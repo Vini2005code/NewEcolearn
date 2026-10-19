@@ -1,11 +1,9 @@
 import React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Ecolearn - Educação ambiental gamificada",
@@ -24,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground antialiased`}>
+      <body className="bg-background font-sans text-foreground antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>

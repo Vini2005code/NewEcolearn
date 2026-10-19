@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
+  outputFileTracingExcludes: {
+    "/*": ["./data/**/*", "./.pnpm-store/**/*", "./.test-build/**/*", "./tests/**/*"],
   },
   images: {
     unoptimized: true,

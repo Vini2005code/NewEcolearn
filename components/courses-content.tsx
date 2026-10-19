@@ -8,6 +8,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { VideoPlayer } from "@/components/video-player"
 import { cn } from "@/lib/utils"
+import { courseLessons } from "@/lib/courses"
+import { api } from "@/lib/api-client"
+import type { Profile } from "@/lib/contracts"
 
 const courses = [
   {
@@ -55,8 +58,44 @@ const videos = [
   },
 ]
 
-export function CoursesContent() {
+export function CoursesContent({ profile, onProgress }: { profile: Profile; onProgress: (profile: Profile) => void }) {
   const [activeTab, setActiveTab] = useState<"courses" | "videos">("courses")
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null)
+  const [lessonIndex, setLessonIndex] = useState(0)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState("")
+  const progressFor = (id: string) => Math.round((profile.courseLessons[id]?.length ?? 0) / courseLessons[id].length * 100)
+
+  async function markComplete() {
+    if (!selectedCourse || busy) return
+    setBusy(true)
+    setError("")
+    try {
+      const next = await api<Profile>("/courses/complete", { courseId: selectedCourse, lessonId: courseLessons[selectedCourse][lessonIndex].id })
+      onProgress(next)
+      if (lessonIndex + 1 < courseLessons[selectedCourse].length) setLessonIndex((value) => value + 1)
+    } catch (err) { setError((err as Error).message) }
+    finally { setBusy(false) }
+  }
+
+  if (selectedCourse) {
+    const course = courses.find((item) => item.id === selectedCourse)!
+    const lessons = courseLessons[selectedCourse]
+    const lesson = lessons[lessonIndex]
+    const completed = profile.courseLessons[selectedCourse]?.includes(lesson.id)
+    return <div className="min-h-screen px-5 py-20 sm:px-8 lg:px-10 lg:py-10"><div className="mx-auto max-w-4xl">
+      <Button variant="outline" onClick={() => setSelectedCourse(null)}>← Voltar aos cursos</Button>
+      <h1 className="mt-6 text-3xl font-semibold">{course.title}</h1>
+      <p className="mt-3 text-muted-foreground">{progressFor(selectedCourse)}% concluído · {lessons.length} leituras</p>
+      <Progress value={progressFor(selectedCourse)} className="my-5" />
+      <div className="mb-6 flex flex-wrap gap-2">{lessons.map((item, index) => <Button key={item.id} disabled={busy} variant={index === lessonIndex ? "default" : "outline"} onClick={() => { setLessonIndex(index); setError("") }}>{profile.courseLessons[selectedCourse]?.includes(item.id) ? "✓ " : ""}{index + 1}. {item.title}</Button>)}</div>
+      <Card><CardContent className="p-6 sm:p-8"><p className="text-sm text-primary">Leitura {lessonIndex + 1} de {lessons.length}</p><h2 className="mt-3 text-2xl font-semibold">{lesson.title}</h2><p className="mt-5 text-lg leading-8 text-muted-foreground">{lesson.content}</p>
+        {error && <p role="alert" className="mt-4 text-destructive">{error}</p>}
+        {completed && <p role="status" className="mt-4 text-primary">✓ Leitura concluída e salva.</p>}
+        <Button className="mt-6" disabled={busy || (completed && lessonIndex === lessons.length - 1)} onClick={markComplete}>{busy ? "Salvando…" : completed ? "Próxima leitura" : "Concluir leitura"}</Button>
+      </CardContent></Card>
+    </div></div>
+  }
 
   return (
     <div className="min-h-screen overflow-y-auto px-5 py-20 sm:px-8 lg:px-10 lg:py-10">
@@ -70,7 +109,7 @@ export function CoursesContent() {
               Trilhas ambientais prontas para crescer com patrocinadores.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-              A seção mostra cursos, vídeos e progresso sem construir uma plataforma EAD completa. Os cards já deixam espaço para thumbnail, sponsor logo e campanhas futuras.
+              Explore leituras curtas e vídeos educativos. Seu progresso nas trilhas é salvo para você continuar de onde parou.
             </p>
           </div>
 
@@ -96,7 +135,7 @@ export function CoursesContent() {
                 </div>
                 <div className="rounded-lg bg-secondary/60 p-3">
                   <p className="text-2xl font-semibold">0</p>
-                  <p className="text-xs text-muted-foreground">APIs</p>
+                  <p className="text-xs text-muted-foreground">custo para aprender</p>
                 </div>
               </div>
             </CardContent>
@@ -144,21 +183,21 @@ export function CoursesContent() {
                     <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <BookOpen className="h-3.5 w-3.5" />
-                        {course.lessons} aulas
+                        {courseLessons[course.id].length} leituras
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
-                        {course.duration}
+                        Leitura no seu ritmo
                       </span>
                     </div>
                     <div className="mt-5">
                       <div className="mb-2 flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Progresso mockado</span>
-                        <span className="font-semibold">{course.progress}%</span>
+                        <span className="text-muted-foreground">Seu progresso</span>
+                        <span className="font-semibold">{progressFor(course.id)}%</span>
                       </div>
-                      <Progress value={course.progress} className="h-2" />
+                      <Progress value={progressFor(course.id)} className="h-2" />
                     </div>
-                    <Button variant="outline" className="mt-5 w-full bg-transparent">
+                    <Button variant="outline" className="mt-5 w-full bg-transparent" onClick={() => { setSelectedCourse(course.id); const next = courseLessons[course.id].findIndex((lesson) => !profile.courseLessons[course.id]?.includes(lesson.id)); setLessonIndex(next < 0 ? 0 : next); setError("") }}>
                       Ver trilha
                       <Play className="h-4 w-4" />
                     </Button>
@@ -194,7 +233,7 @@ export function CoursesContent() {
                   <ShieldCheck className="mb-5 h-6 w-6 text-primary" />
                   <h3 className="text-xl font-semibold">Player responsivo</h3>
                   <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    Usa HTML5 video com MP4, fallback WebM, poster, lazy-load e estado de erro.
+                    Assista com os controles de reprodução e ajuste o volume e a tela conforme preferir.
                   </p>
                 </CardContent>
               </Card>

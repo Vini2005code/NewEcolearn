@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "CommonJS", "moduleResolution": "Node",
+    "strict": true, "esModuleInterop": true, "skipLibCheck": true,
+    "outDir": "../.test-build", "rootDir": "../lib", "types": ["node"]
+  },
+  "include": ["../lib/server/**/*.ts", "../lib/quiz-data.ts", "../lib/courses.ts", "../lib/contracts.ts"]
+}

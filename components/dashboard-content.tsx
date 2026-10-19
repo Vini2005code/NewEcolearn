@@ -24,7 +24,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { quizTopics } from "@/lib/quiz-data"
-import { aiQuizGeneration } from "@/lib/ai-quiz"
 
 interface DashboardContentProps {
   userName: string
@@ -40,17 +39,17 @@ const impactCards = [
     title: "Educação ambiental",
     description: "Conteúdos curtos e visuais para transformar consciência em ação.",
     icon: Leaf,
-    metric: "3 trilhas",
+    metric: `${quizTopics.length} trilhas`,
   },
   {
     title: "Impacto comunitário",
-    description: "Base preparada para campanhas em escolas, bairros e parceiros.",
+    description: "Compartilhe ideias e participe de campanhas com sua comunidade.",
     icon: Users,
-    metric: "Em breve",
+    metric: "Participe",
   },
   {
-    title: "Saúde e prevenção",
-    description: "Aprendizado conectado a temas reais como dengue, água e resíduos.",
+    title: "Saúde e alimentação",
+    description: "Aprendizado sobre dengue, alimentação saudável e cuidado com os alimentos.",
     icon: ShieldCheck,
     metric: "MVP ativo",
   },
@@ -62,11 +61,11 @@ const achievements = [
   { label: "Líder comunitário", icon: Medal, active: false },
 ]
 
-const futureModules = [
-  { title: "Eventos com QR Code", icon: QrCode, tab: "campanhas" },
-  { title: "Rankings por escola", icon: Trophy, tab: "ranking" },
+const communityModules = [
+  { title: "Campanhas ambientais", icon: QrCode, tab: "campanhas" },
+  { title: "Ranking da comunidade", icon: Trophy, tab: "ranking" },
   { title: "Painel de impacto", icon: Target, tab: "impacto" },
-  { title: "Patrocínios", icon: Building2, tab: "campanhas" },
+  { title: "Ações em comunidade", icon: Building2, tab: "campanhas" },
 ]
 
 export function DashboardContent({
@@ -77,8 +76,10 @@ export function DashboardContent({
   totalXp,
   onNavigate,
 }: DashboardContentProps) {
-  const nextLevelXp = 600
-  const xpProgress = Math.min(Math.round((totalXp / nextLevelXp) * 100), 100)
+  const level = Math.floor(totalXp / 600) + 1
+  const nextLevelXp = level * 600
+  const xpProgress = Math.round((totalXp % 600) / 600 * 100)
+  const earnedAchievements = achievements.map((item, index) => ({ ...item, active: index === 0 ? totalQuizzes >= 1 : index === 1 ? totalXp >= 600 : totalQuizzes >= 10 }))
 
   return (
     <div className="min-h-screen overflow-y-auto">
@@ -153,7 +154,7 @@ export function DashboardContent({
 
                 <div className="mt-6 space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">XP para nível 2</span>
+                    <span className="text-muted-foreground">XP para nível {level + 1}</span>
                     <span className="font-semibold">{totalXp}/{nextLevelXp} XP</span>
                   </div>
                   <Progress value={xpProgress} className="h-3 bg-primary/20" />
@@ -169,7 +170,7 @@ export function DashboardContent({
                     <p className="text-xs text-muted-foreground">quizzes</p>
                   </div>
                   <div className="rounded-lg bg-secondary/70 p-4">
-                    <p className="text-2xl font-semibold">3</p>
+                    <p className="text-2xl font-semibold">{earnedAchievements.filter((item) => item.active).length}</p>
                     <p className="text-xs text-muted-foreground">badges</p>
                   </div>
                 </div>
@@ -186,7 +187,7 @@ export function DashboardContent({
                   <Sparkles className="h-5 w-5 text-primary" />
                 </div>
                 <div className="grid gap-3">
-                  {achievements.map((achievement) => {
+                  {earnedAchievements.map((achievement) => {
                     const Icon = achievement.icon
                     return (
                       <div key={achievement.label} className="flex items-center justify-between rounded-lg border border-border bg-background/45 p-3">
@@ -196,7 +197,7 @@ export function DashboardContent({
                           </div>
                           <span className="text-sm font-medium">{achievement.label}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">{achievement.active ? "Ativo" : "Em breve"}</span>
+                        <span className="text-xs text-muted-foreground">{achievement.active ? "Conquistado" : "A conquistar"}</span>
                       </div>
                     )
                   })}
@@ -215,11 +216,11 @@ export function DashboardContent({
               <h2 className="text-3xl font-semibold">Escolha um desafio</h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-              A geração por IA está preparada na arquitetura, mas permanece restrita a administradores e fica em estado {aiQuizGeneration.status} para estudantes no MVP.
+              Explore sustentabilidade, biodiversidade, saúde ambiental e saúde alimentar. Cada desafio traz respostas para revisar e XP para acompanhar seu aprendizado.
             </p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {quizTopics.map((topic) => (
               <button
                 key={topic.id}
@@ -258,11 +259,11 @@ export function DashboardContent({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Cursos e vídeos</p>
-                  <h2 className="text-xl font-semibold">Conteúdos patrocináveis</h2>
+                  <h2 className="text-xl font-semibold">Aprendizado para o dia a dia</h2>
                 </div>
               </div>
               <p className="text-sm leading-6 text-muted-foreground">
-                Cards já preparados para thumbnail, logo de patrocinador, descrição e progresso. O objetivo é permitir campanhas educativas sem construir uma plataforma EAD completa agora.
+                Explore trilhas com leituras curtas e vídeos educativos. Acompanhe seu progresso e retome seu aprendizado quando quiser.
               </p>
               <Button className="mt-5 rounded-md" onClick={() => onNavigate("cursos")}>
                 Abrir seção
@@ -272,7 +273,7 @@ export function DashboardContent({
           </Card>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {futureModules.map((module) => {
+            {communityModules.map((module) => {
               const Icon = module.icon
               return (
                 <button
@@ -283,7 +284,7 @@ export function DashboardContent({
                 >
                   <Icon className="mb-4 h-5 w-5 text-primary" />
                   <p className="font-semibold">{module.title}</p>
-                  <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Coming soon</p>
+                  <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Explorar</p>
                 </button>
               )
             })}
@@ -295,7 +296,7 @@ export function DashboardContent({
         <div className="mx-auto flex max-w-7xl flex-col gap-3 rounded-lg border border-border bg-secondary/30 p-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <CalendarDays className="h-5 w-5 text-primary" />
-            <span>Próxima fase: desafios comunitários, rankings e campanhas presenciais.</span>
+            <span>Participe da comunidade, descubra campanhas e acompanhe sua evolução.</span>
           </div>
           <div className="flex items-center gap-2">
             <HeartHandshake className="h-4 w-4 text-primary" />

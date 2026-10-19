@@ -1,12 +1,15 @@
 {
-  "name": "my-v0-project",
+  "name": "ecolearn",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc -p tests/tsconfig.json && node --test tests/backend.test.cjs",
+    "test:http": "node --test tests/http.test.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -69,5 +72,8 @@
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

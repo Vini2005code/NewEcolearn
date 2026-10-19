@@ -19,6 +19,23 @@ export interface QuizTopic {
 
 export const quizTopics: QuizTopic[] = [
   {
+    id: "saude-alimentar",
+    name: "Saúde Alimentar",
+    image: "/images/saude-alimentar.svg",
+    description: "Saúde Alimentar no Agronegócio 🌱 — boas práticas, higiene, alimentação equilibrada e redução do desperdício.",
+    difficulty: "Iniciante",
+    sponsorReady: true,
+    questions: [
+      { id: 1, question: "Qual prática agrícola contribui para a segurança dos alimentos?", image: "/images/saude-alimentar.svg", options: ["Aplicar agrotóxicos acima da dose recomendada.", "Respeitar as boas práticas agrícolas e o período de carência.", "Colher os alimentos imediatamente após a aplicação de defensivos."], correct: 1, xp: 25 },
+      { id: 2, question: "Qual é a principal função da higienização de frutas e verduras?", image: "/images/saude-alimentar.svg", options: ["Eliminar todos os nutrientes.", "Reduzir sujeiras e riscos de contaminação.", "Aumentar o tempo de crescimento das plantas."], correct: 1, xp: 25 },
+      { id: 3, question: "Como o solo fértil contribui para a alimentação saudável?", image: "/images/saude-alimentar.svg", options: ["Favorecendo o desenvolvimento das culturas e a disponibilidade de nutrientes.", "Impedindo a absorção de água pelas raízes.", "Eliminando a necessidade de manejo agrícola."], correct: 0, xp: 25 },
+      { id: 4, question: "Qual atitude ajuda a prevenir doenças transmitidas por alimentos?", image: "/images/saude-alimentar.svg", options: ["Manipular alimentos com as mãos sujas.", "Deixar alimentos perecíveis fora da refrigeração por horas.", "Lavar as mãos antes de preparar ou consumir alimentos."], correct: 2, xp: 25 },
+      { id: 5, question: "Qual exemplo representa uma alimentação equilibrada para trabalhadores rurais?", image: "/images/saude-alimentar.svg", options: ["Consumir apenas carboidratos.", "Combinar verduras, legumes, frutas, proteínas e fontes de energia.", "Substituir todas as refeições por bebidas energéticas."], correct: 1, xp: 25 },
+      { id: 6, question: "Por que o uso correto de defensivos agrícolas é importante?", image: "/images/saude-alimentar.svg", options: ["Porque elimina a necessidade de fiscalização.", "Porque reduz riscos à saúde humana e ao meio ambiente.", "Porque permite colher sem respeitar o período de carência."], correct: 1, xp: 25 },
+      { id: 7, question: "Qual prática ajuda a reduzir o desperdício de alimentos no agronegócio?", image: "/images/saude-alimentar.svg", options: ["Melhorar o armazenamento e o transporte.", "Descartar produtos sem avaliar suas condições.", "Manter alimentos perecíveis em temperaturas inadequadas."], correct: 0, xp: 25 },
+    ],
+  },
+  {
     id: "meio-ambiente",
     name: "Sustentabilidade",
     image: "/images/meio-ambiente.jpg",
@@ -234,7 +251,7 @@ export const getTopicById = (topicId: string) =>
   quizTopics.find((topic) => topic.id === topicId)
 
 export const calculateScore = (correctAnswers: number, totalQuestions: number): number =>
-  Math.round((correctAnswers / totalQuestions) * 100)
+  totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0
 
 export const calculateXp = (topic: QuizTopic, answeredCorrectly: number[]): number =>
   answeredCorrectly.reduce((total, questionIndex) => total + topic.questions[questionIndex].xp, 0)

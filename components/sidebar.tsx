@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useTheme } from "next-themes"
 import {
   BarChart3,
+  Apple,
   BookOpen,
   Building2,
   GraduationCap,
@@ -43,6 +44,7 @@ const navigation = [
       { id: "meio-ambiente", name: "Sustentabilidade", icon: Leaf },
       { id: "animais", name: "Biodiversidade", icon: PawPrint },
       { id: "dengue", name: "Saúde ambiental", icon: HeartPulse },
+      { id: "saude-alimentar", name: "Saúde Alimentar", icon: Apple },
     ],
   },
   {
@@ -50,20 +52,20 @@ const navigation = [
     items: [{ id: "cursos", name: "Cursos e vídeos", icon: BookOpen }],
   },
   {
-    label: "Futuro",
+    label: "Conectar",
     items: [
-      { id: "ranking", name: "Rankings", icon: Trophy, soon: true },
-      { id: "comunidade", name: "Comunidade", icon: Users, soon: true },
-      { id: "campanhas", name: "Campanhas", icon: QrCode, soon: true },
-      { id: "impacto", name: "Impacto", icon: BarChart3, soon: true },
-      { id: "perfil", name: "Perfil", icon: UserRound, soon: true },
+      { id: "ranking", name: "Rankings", icon: Trophy },
+      { id: "comunidade", name: "Comunidade", icon: Users },
+      { id: "campanhas", name: "Campanhas", icon: QrCode },
+      { id: "impacto", name: "Impacto", icon: BarChart3 },
+      { id: "perfil", name: "Minha jornada", icon: UserRound },
     ],
   },
 ]
 
 export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore, totalXp }: SidebarProps) {
   const { theme, setTheme } = useTheme()
-  const xpProgress = Math.min(Math.round((totalXp / 600) * 100), 100)
+  const xpProgress = Math.round((totalXp % 600) / 600 * 100)
 
   return (
     <aside className="flex h-screen w-72 flex-col border-r border-border bg-sidebar/95 text-sidebar-foreground shadow-2xl backdrop-blur-xl">
@@ -119,6 +121,7 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
                     key={item.id}
                     type="button"
                     onClick={() => onTabChange(item.id)}
+                    aria-current={isActive ? "page" : undefined}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition",
                       isActive
@@ -128,9 +131,9 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
                   >
                     <Icon className="h-4 w-4" />
                     <span className="min-w-0 flex-1 truncate text-left">{item.name}</span>
-                    {"soon" in item && item.soon && (
+                    {"soon" in item && Boolean(item.soon) && (
                       <span className={cn("rounded-full px-2 py-0.5 text-[10px] uppercase", isActive ? "bg-white/20" : "bg-primary/10 text-primary")}>
-                        soon
+                        em breve
                       </span>
                     )}
                   </button>
@@ -147,7 +150,7 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
             <Building2 className="h-4 w-4 text-primary" />
             <span>Pronto para parceiros</span>
           </div>
-          <p className="text-xs leading-5 text-sidebar-foreground/50">Cursos patrocinados, campanhas e rankings entram em fases futuras.</p>
+          <p className="text-xs leading-5 text-sidebar-foreground/50">Aprenda, participe de campanhas e acompanhe o impacto da comunidade.</p>
         </div>
 
         <div className="grid grid-cols-[1fr_auto] gap-2">
@@ -160,7 +163,7 @@ export function Sidebar({ activeTab, onTabChange, userName, userEmail, bestScore
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             Tema
           </Button>
-          <Button variant="outline" size="icon" className="bg-transparent text-destructive hover:text-destructive" onClick={() => onTabChange("logout")} aria-label="Sair">
+          <Button variant="outline" size="icon" className="bg-transparent text-destructive hover:text-destructive" onClick={() => onTabChange("logout")} aria-label="Pausar jornada">
             <LogOut className="h-4 w-4" />
           </Button>
         </div>

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "saude-alimentar",
+    "name": "Saúde Alimentar",
+    "image": "/images/saude-alimentar.svg",
+    "description": "Saúde Alimentar no Agronegócio 🌱 — boas práticas, higiene, alimentação equilibrada e redução do desperdício.",
+    "difficulty": "Iniciante",
+    "sponsorReady": true,
+    "questionCount": 7,
+    "maxXp": 175
+  },
+  {
+    "id": "meio-ambiente",
+    "name": "Sustentabilidade",
+    "image": "/images/meio-ambiente.jpg",
+    "description": "Consumo consciente, clima, energia e preservação ambiental.",
+    "difficulty": "Iniciante",
+    "sponsorReady": true,
+    "questionCount": 5,
+    "maxXp": 140
+  },
+  {
+    "id": "animais",
+    "name": "Biodiversidade",
+    "image": "/images/animais.jpg",
+    "description": "Fauna brasileira, conservação e proteção de espécies.",
+    "difficulty": "Intermediário",
+    "sponsorReady": true,
+    "questionCount": 5,
+    "maxXp": 150
+  },
+  {
+    "id": "dengue",
+    "name": "Saúde Ambiental",
+    "image": "/images/dengue.jpg",
+    "description": "Dengue, água parada, prevenção e cuidado comunitário.",
+    "difficulty": "Iniciante",
+    "sponsorReady": false,
+    "questionCount": 5,
+    "maxXp": 145
+  }
+]
