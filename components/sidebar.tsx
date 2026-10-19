@@ -43,7 +43,7 @@ const navigation = [
     items: [
       { id: "meio-ambiente", name: "Sustentabilidade", icon: Leaf },
       { id: "animais", name: "Biodiversidade", icon: PawPrint },
-      { id: "dengue", name: "Saúde ambiental", icon: HeartPulse },
+      { id: "dengue", name: "Dengue", icon: HeartPulse },
       { id: "saude-alimentar", name: "Saúde Alimentar", icon: Apple },
     ],
   },

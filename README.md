@@ -20,7 +20,7 @@ pnpm start
 
 ## Funcionalidades
 
-- Quatro quizzes: Sustentabilidade, Biodiversidade, Saúde Ambiental e Saúde Alimentar no Agronegócio.
+- Quatro quizzes: Sustentabilidade, Biodiversidade, Dengue e Saúde Alimentar no Agronegócio.
 - Saúde Alimentar tem as sete questões fornecidas, três alternativas por questão e gabarito B, B, A, C, B, B, A. Acertar todas vale 175 XP.
 - O servidor calcula acertos, nota e XP. Uma tentativa reenviada retorna o mesmo resultado sem duplicar XP. Há revisão completa das respostas ao final.
 - Tempo opcional de 30 segundos por questão, feedback imediato e reinício independente ao trocar de trilha.

@@ -7,7 +7,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Ecolearn - Educação ambiental gamificada",
-  description: "Plataforma moderna de sustentabilidade, saúde ambiental, comunidade e aprendizado gamificado.",
+  description: "Plataforma moderna de sustentabilidade, prevenção da dengue, saúde alimentar, comunidade e aprendizado gamificado.",
   generator: "Ecolearn",
   icons: {
     icon: "/images/ecolearn-logo.png",

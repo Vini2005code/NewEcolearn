@@ -216,7 +216,7 @@ export function DashboardContent({
               <h2 className="text-3xl font-semibold">Escolha um desafio</h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-              Explore sustentabilidade, biodiversidade, saúde ambiental e saúde alimentar. Cada desafio traz respostas para revisar e XP para acompanhar seu aprendizado.
+              Explore sustentabilidade, biodiversidade, prevenção da dengue e saúde alimentar. Cada desafio traz respostas para revisar e XP para acompanhar seu aprendizado.
             </p>
           </div>
 

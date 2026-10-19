@@ -177,7 +177,7 @@ export const quizTopics: QuizTopic[] = [
   },
   {
     id: "dengue",
-    name: "Saúde Ambiental",
+    name: "Dengue",
     image: "/images/dengue.jpg",
     description: "Dengue, água parada, prevenção e cuidado comunitário.",
     difficulty: "Iniciante",
