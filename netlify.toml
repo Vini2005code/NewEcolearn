@@ -1,0 +1,9 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# Next.js is handled by Netlify's automatically detected adapter.
+# Database migrations: netlify/database/migrations/*.sql

@@ -19,3 +19,4 @@ data/
 *.tsbuildinfo
 .test-build/
 .env
+.netlify/

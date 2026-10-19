@@ -12,7 +12,7 @@ let log = ''
 let cookie
 
 before(async () => {
-  server = spawn(process.execPath, [require.resolve('next/dist/bin/next'), 'start', '-p', '3107', '-H', '127.0.0.1'], { cwd: process.cwd(), env: { ...process.env, ECOLEARN_DB_PATH: join(folder, 'http.sqlite') }, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] })
+  server = spawn(process.execPath, [require.resolve('next/dist/bin/next'), 'start', '-p', '3107', '-H', '127.0.0.1'], { cwd: process.cwd(), env: { ...process.env, DATABASE_URL: "", NETLIFY_DB_URL: "", NETLIFY: "", ECOLEARN_DATABASE: "", AWS_LAMBDA_FUNCTION_NAME: "", ECOLEARN_DB_PATH: join(folder, 'http.sqlite') }, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] })
   server.stdout.on('data', chunk => { log += chunk })
   server.stderr.on('data', chunk => { log += chunk })
   for (let count = 0; count < 100; count++) {
@@ -69,4 +69,15 @@ test('HTTP rejects invalid input, cross origin writes, and access to another jou
   const attempt = await (await post('/quizzes/start', { topicId: 'animais' })).json()
   const foreign = await fetch(base + '/api/quizzes/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ attemptId: attempt.id, answers: [2,1,0,1,0] }) })
   assert.equal(foreign.status, 404)
+})
+
+test('HTTP concurrent retries on the async backend do not duplicate XP', async () => {
+  const attempt = await (await post('/quizzes/start', { topicId: 'saude-alimentar' })).json()
+  const body = { attemptId: attempt.id, answers: [1,1,0,2,1,1,0] }
+  const responses = await Promise.all(Array.from({ length: 6 }, () => post('/quizzes/submit', body)))
+  assert.ok(responses.every(response => response.status === 200))
+  const response = await fetch(base + '/api/profile', { headers: { cookie } })
+  const profile = await response.json()
+  assert.equal(profile.totalQuizzes, 2)
+  assert.equal(profile.totalXp, 350)
 })

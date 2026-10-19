@@ -1,6 +1,6 @@
 # Ecolearn
 
-Plataforma de educação ambiental com Next.js, React, TypeScript e SQLite. As telas e os arquivos de mídia existentes foram mantidos; os módulos demonstrativos agora usam dados persistentes.
+Plataforma de educação ambiental com Next.js, React, TypeScript e persistência em SQLite local ou PostgreSQL no Netlify. As telas e os arquivos de mídia existentes foram mantidos; os módulos demonstrativos agora usam dados persistentes.
 
 ## Executar
 
@@ -65,13 +65,23 @@ pnpm build
 pnpm test:http
 ~~~
 
-Os testes de serviço usam banco temporário e validam isolamento de visitantes, migração, as quatro trilhas, gabarito de Saúde Alimentar, idempotência, respostas inválidas, leituras, comunidade, campanhas, arquivos de imagem e persistência em outro processo. Os testes HTTP iniciam o build de produção em 127.0.0.1:3107 com outro banco temporário e verificam cookies, pontuação, reenvios e erros da API. A porta 3107 precisa estar livre. pnpm lint executa a verificação de tipos; o projeto não tem ESLint configurado.
+Os testes de serviço usam banco temporário e validam isolamento de visitantes, migração, as quatro trilhas, gabarito de Saúde Alimentar, idempotência, respostas inválidas, leituras, comunidade, campanhas, arquivos de imagem e persistência em outro processo. Os testes PostgreSQL usam PGlite (PostgreSQL em WASM) para executar a mesma migração e os serviços, sem credenciais nem acesso à produção. Os testes HTTP iniciam o build de produção em 127.0.0.1:3107 com outro banco temporário e verificam cookies, pontuação, reenvios e erros da API. A porta 3107 precisa estar livre. pnpm lint executa a verificação de tipos; o projeto não tem ESLint configurado.
 
 ## Hospedagem e backup
 
-Este backend usa SQLite em um único servidor Node com volume persistente. Não funciona com exportação estática ou com o disco efêmero padrão de funções serverless, incluindo a hospedagem padrão da Vercel. Para usar múltiplas réplicas ou funções serverless, é necessário migrar a persistência para um banco gerenciado e configurar as credenciais.
+Localmente, o backend continua usando SQLite em data/ecolearn.sqlite, sem alterar os dados já existentes. No Netlify, usa PostgreSQL com o driver oficial @netlify/database; nenhuma gravação persistente é feita no disco das funções. Também aceita DATABASE_URL para outro provedor PostgreSQL. Não use exportação estática: as rotas /api precisam de servidor.
 
-Faça backup do banco com o servidor parado, ou use a API de backup do SQLite para uma cópia consistente. Não remova data/ durante atualizações. O banco e os arquivos WAL/SHM são ignorados pelo Git. A publicação pública de comunidade e campanhas requer operação de moderação e controle de acesso apropriado ao público; a versão atual identifica visitantes por navegador.
+### Publicar no Netlify
+
+1. Publique as alterações deste projeto no repositório conectado ao site e execute um novo deploy. O netlify.toml define pnpm build, .next e Node 24.
+2. Mantenha netlify/database/migrations/0001_ecolearn.sql no repositório. O Netlify Database provisiona o banco e aplica as migrações no ciclo de deploy, conforme a [documentação oficial](https://docs.netlify.com/build/data-and-storage/netlify-database/getting-started/).
+3. Se a conta solicitar configuração manual, abra Data & Storage > Database no projeto e use Create a database manually; depois faça um novo deploy.
+4. Se houver um banco externo, configure DATABASE_URL como variável secreta disponível às Functions e faça novo deploy. Nesse caso, as tabelas são criadas automaticamente na primeira conexão, sem remover registros existentes.
+5. Valide /api/profile: deve retornar 200. Confira um quiz, o histórico e a persistência após recarregar. Se aparecer erro, consulte os logs da função Next.js no Netlify.
+
+Não configure ECOLEARN_DB_PATH como solução para o Netlify e não aponte o banco para /tmp: esse disco não garante persistência. As tabelas usam criação aditiva; o backend não apaga dados durante inicialização. O SQLite local e o PostgreSQL hospedado são bancos distintos; dados locais não são copiados automaticamente para a nuvem. O design e o conteúdo dos quizzes permanecem iguais.
+
+Faça backup do banco com o servidor parado, ou use a API de backup do SQLite para uma cópia consistente. Não remova data/ durante atualizações. O banco local e os arquivos WAL/SHM são ignorados pelo Git. Para PostgreSQL, use os recursos de backup do provedor. A publicação pública de comunidade e campanhas requer operação de moderação e controle de acesso apropriado ao público; a versão atual identifica visitantes por navegador.
 
 ## Projeto de origem
 
